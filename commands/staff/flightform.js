@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
 
 module.exports = {
+	category: 'staff',
 	data: new SlashCommandBuilder()
 		.setName("flightform")
 		.setDescription("Creates a new flight form")
