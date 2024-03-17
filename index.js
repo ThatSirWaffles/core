@@ -1,10 +1,31 @@
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require('fs');
+const path = require('path');
+
+const scriptsFolder = './handlers';
+
+const scriptFiles = fs.readdirSync(scriptsFolder).filter(file => file.endsWith('.js'));
+
+scriptFiles.forEach(file => {
+  const scriptPath = path.join(__dirname, scriptsFolder, file);
+  require(scriptPath);
+});
 
 const { Client, GatewayIntentBits, REST, Collection, Events, Routes } = require('discord.js');
-const { token, cliendid, staffguildid } = require("./config.json");
+const { token, mainguildid, staffguildid } = require("./config.json");
 
-const client = new Client({intents: [GatewayIntentBits.Guilds,],});
+global.client = new Client({intents: [GatewayIntentBits.Guilds],});
+
+client.login(token);
+
+client.guilds.fetch(mainguildid)
+.then(guild => {
+	global.mainguild = guild;
+})
+
+client.guilds.fetch(staffguildid)
+.then(guild => {
+	global.staffguild = guild;
+})
 
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
@@ -36,5 +57,3 @@ for (const file of eventFiles) {
 		client.on(event.name, (...args) => event.execute(...args));
 	}
 }
-
-client.login(token);
