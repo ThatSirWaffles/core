@@ -101,7 +101,7 @@ module.exports = {
 							.setColor("#2b2d31")
 							.setTitle(selectedflight.flightNumber)
 							.setURL("https://staff.skyrden.com/flights/"+collected.values[0])
-							.setDescription(`<:aircraft:1203078640871677982> \`${selectedflight.aircraft.name}\`${classemojis}\n\n<:gate:1203078645619621919> \`${selectedflight.airport.gate}\`\n<:origin:1203078648912150558> \`${selectedflight.airport.name}\`\n<:destination:1203078644319133767> \`${selectedflight.airport.destination}\`\n\n<:time:1203078650241744996> <t:${selectedflight.date}:t> <t:${selectedflight.date}:R>\n<:day:1203078643128082442> <t:${selectedflight.date}:D>`)
+							.setDescription(`<:aircraft:1203078640871677982> \`${selectedflight.aircraft.name}\`${classemojis}\n\n<:gate:1203078645619621919> \`${selectedflight.airport.gate}\`\n<:origin:1203078648912150558> \`${selectedflight.airport.name}\`\n<:destination:1203078644319133767> \`${selectedflight.airport.destination}\`\n\n<:time:1203078650241744996> <t:${selectedflight.date-900}:t> <t:${selectedflight.date}:R>\n<:day:1203078643128082442> <t:${selectedflight.date}:D>`)
 							.addFields({name: "Joined Users", value: `<@${host.discordId}> ***HOST***`})
 						],
 						components: [
