@@ -6,6 +6,6 @@ module.exports = {
 	execute(client) {
 		console.log(`Logged in as ${client.user.tag}!`);
 		client.user.setStatus('dnd');
-		client.user.setActivity('over Skyrden', { type: ActivityType.Watching });
+		client.user.setActivity('from your basement', {type: ActivityType.Streaming, url: "https://www.youtube.com/watch?v=xvFZjo5PgG0"});
 	},
 };

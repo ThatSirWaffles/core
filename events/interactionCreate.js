@@ -1,5 +1,5 @@
 const { Events, ModalBuilder, EmbedBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle } = require('discord.js');
-const {info, success, fail, staffhubkey} = require("../config.json")
+const {info, success, fail, staffhubkey, externalkey} = require("../config.json")
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -18,9 +18,9 @@ module.exports = {
 			} catch (error) {
 				console.error(error);
 				if (interaction.replied || interaction.deferred) {
-					await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+					await interaction.followUp({ content: fail+` Failed, please report the bug to @sirwaffles\`\`\`${error}\`\`\``, ephemeral: true });
 				} else {
-					await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+					await interaction.reply({ content: fail+` Failed, please report the bug to @sirwaffles\`\`\`${error}\`\`\``, ephemeral: true });
 				}
 			}
 
@@ -64,32 +64,18 @@ module.exports = {
 
 						fetch('https://staff.skyrden.com/api/v1/signups/flights', {method: "POST", body: JSON.stringify(body), headers:{"Content-Type": "application/json", Authorization: staffhubkey}})
 						.then(async () => {
-							const response = await fetch("https://staff.skyrden.com/api/v1/flights/"+args[1]);
-							const data = await response.json();
-							const flight = data.data;
-
-							const host = (await (await fetch("https://staff.skyrden.com/api/v1/staff?robloxId[eq]="+flight.host)).json()).data[0];
-
-							const list = signups.map(obj => `<@${obj.staff.discordId}>`)
-							list.unshift(`<@${host.discordId}> ***HOST***`)
-							list.push(`<@${interaction.user.id}>`)
-
-							interaction.message.edit({embeds: [
-								new EmbedBuilder()
-									.setTitle(interaction.message.embeds[0].data.title)
-									.setURL(interaction.message.embeds[0].data.url)
-									.setDescription(interaction.message.embeds[0].data.description)
-									.setColor("#2b2d31")
-									.addFields({name: "Joined Users", value: list.join("\n")})
-							]})
-
-							modalInteraction.reply({embeds: [
-								new EmbedBuilder()
-									.setColor("#2b2d31")
-									.setDescription(success+` Joined **${interaction.message.embeds[0].title}**`)
+							fetch(`http://localhost:8010/updateflightform/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: externalkey})})
+							.then(() => {
+								interaction.followUp({embeds: [
+									new EmbedBuilder()
+										.setColor("#2b2d31")
+										.setDescription(success+`Added to **${interaction.message.embeds[0].title}**`)
 								],
-								ephemeral: true
+								ephemeral: true});
 							})
+							.catch(error => {
+								error(error);
+							});
 						})
 						.catch(err => {
 							modalInteraction.reply({embeds: [
@@ -116,30 +102,18 @@ module.exports = {
 				if (signups.some(obj => obj.staff.discordId == interaction.user.id)) {
 					fetch('https://staff.skyrden.com/api/v1/signups/flights/'+signups.filter(obj => obj.staff.discordId == interaction.user.id)[0].id, {method: "DELETE", headers:{Authorization: staffhubkey}})
 					.then(async () => {
-						const response = await fetch("https://staff.skyrden.com/api/v1/flights/"+args[1]);
-						const data = await response.json();
-						const flight = data.data;
-
-						const host = (await (await fetch("https://staff.skyrden.com/api/v1/staff?robloxId[eq]="+flight.host)).json()).data[0];
-
-						const list = signups.filter(obj => obj.staff.discordId != interaction.user.id).map(obj => `<@${obj.staff.discordId}>`)
-						list.unshift(`<@${host.discordId}> ***HOST***`)
-
-						interaction.message.edit({embeds: [
-							new EmbedBuilder()
-								.setTitle(interaction.message.embeds[0].data.title)
-								.setURL(interaction.message.embeds[0].data.url)
-								.setDescription(interaction.message.embeds[0].data.description)
-								.setColor("#2b2d31")
-								.addFields({name: "Joined Users", value: list.join("\n")})
-						]})
-
-						interaction.followUp({embeds: [
-							new EmbedBuilder()
-								.setColor("#2b2d31")
-								.setDescription(success+` Removed from **${interaction.message.embeds[0].title}**`)
-						],
-						ephemeral: true});
+						fetch(`http://localhost:8010/updateflightform/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: externalkey})})
+						.then(() => {
+							interaction.followUp({embeds: [
+								new EmbedBuilder()
+									.setColor("#2b2d31")
+									.setDescription(success+` Removed from **${interaction.message.embeds[0].title}**`)
+							],
+							ephemeral: true});
+						})
+						.catch(error => {
+							error(error);
+						});
 					})
 					.catch(err => {
 						interaction.followUp({embeds: [
@@ -157,6 +131,18 @@ module.exports = {
 					],
 					ephemeral: true});
 				}
+			} else if (args[0] == "refreshflight") {
+				interaction.deferReply({ephemeral: true});
+				fetch(`http://localhost:8010/updateflightform/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: externalkey})})
+				.then(() => interaction.deleteReply())
+				.catch(err => {
+					interaction.followUp({embeds: [
+						new EmbedBuilder()
+							.setColor("#2b2d31")
+							.setDescription(fail+` Failed, please report the bug to @sirwaffles\`\`\`${err}\`\`\``)
+					],
+					ephemeral: true});
+				});
 			} else {
 				await interaction.reply({content: "shoopdiwoop there's nothing here lol sryy if this is wrong send a dm to @sirwaffles", ephemeral: true});
 			}

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder, Embed, ComponentType, GuildScheduledEventPrivacyLevel, GuildScheduledEventManager, GuildScheduledEventEntityType, GuildScheduledEventStatus } = require('discord.js');
-const { mainguildid, info, success, fail } = require("../../config.json")
+const { mainguildid, info, success, fail, eventannouncements, flightlist } = require("../../config.json")
 
 module.exports = {
 	category: 'staff',
@@ -87,7 +87,7 @@ module.exports = {
 					const eventmanager = new GuildScheduledEventManager(mainguild)
 
 					eventmanager.create({
-						name: collected.values[0],
+						name: selectedflight.flightNumber,
 						scheduledStartTime: new Date(selectedflight.date*1000),
 						scheduledEndTime: new Date(selectedflight.date*1000+3600000),
 						privacyLevel: GuildScheduledEventPrivacyLevel.GuildOnly,
@@ -105,7 +105,7 @@ module.exports = {
 							components: []
 						})
 
-						client.channels.cache.get("891399468111519874").messages.fetch("1203288734724784168")
+						client.channels.cache.get(eventannouncements).messages.fetch(flightlist)
 						.then(async message => {
 							events = await eventmanager.fetch();
 

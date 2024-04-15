@@ -28,7 +28,7 @@ for (const folder of commandFolders) {
 			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
 		}
 	}
-}
+};
 
 // Construct and prepare an instance of the REST module
 const rest = new REST().setToken(token);
@@ -54,4 +54,8 @@ const rest = new REST().setToken(token);
 		// And of course, make sure you catch and log any errors!
 		console.error(error);
 	}
-})();
+});
+
+rest.delete(Routes.applicationCommand(clientid, '971513465028104204'))
+	.then(() => console.log('Successfully deleted application command'))
+	.catch(console.error);

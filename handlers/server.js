@@ -5,7 +5,7 @@ const bodyparser = require('body-parser');
 server.use(bodyparser.text());
 server.use(express.json());
 
-const { externalkey, flightformchannelid, staffhubkey } = require("../config.json");
+const { externalkey, flightformchannelid, staffhubkey, eventannouncements, flightlist } = require("../config.json");
 const { EmbedBuilder, GuildScheduledEventPrivacyLevel, GuildScheduledEventEntityType, GuildScheduledEventManager, GuildScheduledEventStatus, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
 
 var jobs = []
@@ -238,16 +238,16 @@ server.post('/createevent/:flightid', async (req, res) => {
 			entityMetadata: {location: "https://skyrden.com/"+flight.airport.name.toLowerCase()},
 			image: null,
 		}).then(event => {
-			client.channels.cache.get("891399468111519874").messages.fetch("1203288734724784168")
+			client.channels.cache.get(eventannouncements).messages.fetch(flightlist)
 			.then(async message => {
 				events = await eventmanager.fetch();
 
 				message.edit({content: "||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​|| _ _ _ _ _ _"+events.filter(event => event.status === GuildScheduledEventStatus.Scheduled && event.description.includes("1044002420935635105")).map(event => event.url).join("\n"), embeds: []})
 			})
 
-			res.status(200).json({message: 'Created successfully', event: {id: event.id, url: event.url}})
+			res.status(200).json({message: 'Created successfully', event: {id: event.id, url: event.url}});
 
-			client.channels.cache.get("994709325186600980").send(`${req.ip} created a new [event](${event.url}) via the API`)
+			client.channels.cache.get("994709325186600980").send(`${req.ip} created a new [event](${event.url}) via the API`);
 		})
 		.catch(e => {
 			res.status(500).json({message: 'Failed', error: `${e}`})
@@ -259,109 +259,147 @@ server.post('/createevent/:flightid', async (req, res) => {
 
 server.post('/updateflightform/:flightid', async (req, res) => {
 	const {flightid} = req.params;
+	const {token} = req.body;
 
-	const response = await fetch("https://staff.skyrden.com/api/v1/flights/"+flightid);
+	if (token == externalkey) {
+		const response = await fetch("https://staff.skyrden.com/api/v1/flights/"+flightid);
 
-	if (response.status == 200) {
-		const data = await response.json();
-		const selectedflight = data.data;
-		
-		const forms = await client.channels.cache.get(flightformchannelid).messages.fetch();
-		const found = forms.filter(msg => msg.embeds[0] && msg.embeds[0].data.title.includes(selectedflight.flightNumber));
+		if (response.status == 200) {
+			const data = await response.json();
+			const selectedflight = data.data;
+			
+			const forms = await client.channels.cache.get(flightformchannelid).messages.fetch();
+			const found = forms.filter(msg => msg.embeds[0] && msg.embeds[0].data.title.includes(selectedflight.flightNumber));
 
-		if (found.size > 0) {
-			const msg = found.values().next().value
+			if (found.size > 0) {
+				const msg = found.values().next().value
 
-			const host = (await (await fetch("https://staff.skyrden.com/api/v1/staff?robloxId[eq]="+selectedflight.host)).json()).data[0];
-			const signups = (await (await fetch("https://staff.skyrden.com/api/v1/signups/flights?flightId="+flightid, {headers:{Authorization: staffhubkey}})).json()).data;
+				const host = (await (await fetch("https://staff.skyrden.com/api/v1/staff?robloxId[eq]="+selectedflight.host)).json()).data[0];
+				const signups = (await (await fetch("https://staff.skyrden.com/api/v1/signups/flights?flightId="+flightid, {headers:{Authorization: staffhubkey}})).json()).data;
 
-			const list = signups.filter(obj => obj.staff.discordId).map(obj => `<@${obj.staff.discordId}>`)
-			list.unshift(`<@${host.discordId}> ***HOST***`)
+				const list = signups.filter(obj => obj.staff.discordId).map(obj => `<@${obj.staff.discordId}>`)
+				list.unshift(`<@${host.discordId}> ***HOST***`)
 
-			msg.edit({embeds: [
-				new EmbedBuilder()
-					.setTitle(msg.embeds[0].data.title)
-					.setURL(msg.embeds[0].data.url)
-					.setDescription(msg.embeds[0].data.description)
-					.setColor("#2b2d31")
-					.addFields({name: "Joined Users", value: list.join("\n")})
-			]})
+				var classemojis = ""
+
+				if (selectedflight.aircraft.modelId != null) {
+					if (selectedflight.aircraft.premiumPlus != 0) {
+						classemojis += " <:skrprp:1059119094789582943>"
+					}
+					if (selectedflight.aircraft.premium != 0) {
+						classemojis += " <:skrpr:1202940106084847647>"
+					}
+					if (selectedflight.aircraft.economyPlus != 0) {
+						classemojis += " <:skrecp:1059119096899313674>"
+					}
+					if (selectedflight.aircraft.economy != 0) {
+						classemojis += " <:skrec:1059119098405072938>"
+					}
+				}
+
+				msg.edit({embeds: [
+					new EmbedBuilder()
+						.setTitle(selectedflight.flightNumber)
+						.setURL("https://staff.skyrden.com/flights/"+flightid)
+						.setDescription(`<:aircraft:1203078640871677982> \`${selectedflight.aircraft.name}\`${classemojis}\n\n<:gate:1203078645619621919> \`${selectedflight.airport.gate}\`\n<:origin:1203078648912150558> \`${selectedflight.airport.name}\`\n<:destination:1203078644319133767> \`${selectedflight.airport.destination}\`\n\n<:time:1203078650241744996> <t:${selectedflight.date-900}:t> <t:${selectedflight.date-900}:R>\n<:day:1203078643128082442> <t:${selectedflight.date-900}:D>`)
+						.setColor("#2b2d31")
+						.addFields({name: "Joined Users", value: list.join("\n")})
+				]})
+
+				res.status(200).json({message: 'Updated successfully'})
+			} else {
+				res.status(500).json({message: 'Failed', error: "Flight form doesn't exist"});
+			}
 		} else {
-			res.status(500).json({message: 'Failed', error: "Flight form doesn't exist"});
+		res.status(500).json({message: 'Failed', error: "Invalid flight ID "+flightid});
 		}
 	} else {
-	res.status(500).json({message: 'Failed', error: "Invalid flight ID "+flightid});
+		res.status(401).json({message: 'Invalid token'})
 	}
 })
 
 server.post('/createflightform/:flightid', async (req, res) => {
 	const {flightid} = req.params;
+	const {token} = req.body;
 
-	const response = await fetch("https://staff.skyrden.com/api/v1/flights/"+flightid);
+	if (token == externalkey) {
+		const response = await fetch("https://staff.skyrden.com/api/v1/flights/"+flightid);
 
-	if (response.status == 200) {
-		const data = await response.json();
-		const selectedflight = data.data;
+		if (response.status == 200) {
+			const data = await response.json();
+			const selectedflight = data.data;
 
-		const forms = await client.channels.cache.get(flightformchannelid).messages.fetch();
+			const forms = await client.channels.cache.get(flightformchannelid).messages.fetch();
 
-		if (forms.filter(msg => msg.embeds[0] && msg.embeds[0].data.title.includes(selectedflight.flightNumber)).size == 0) {
-			const host = (await (await fetch("https://staff.skyrden.com/api/v1/staff?robloxId[eq]="+selectedflight.host)).json()).data[0];
+			if (forms.filter(msg => msg.embeds[0] && msg.embeds[0].data.title.includes(selectedflight.flightNumber)).size == 0) {
+				const host = (await (await fetch("https://staff.skyrden.com/api/v1/staff?robloxId[eq]="+selectedflight.host)).json()).data[0];
+				const signups = (await (await fetch("https://staff.skyrden.com/api/v1/signups/flights?flightId="+flightid, {headers:{Authorization: staffhubkey}})).json()).data;
 
-			var classemojis = ""
+				const list = signups.filter(obj => obj.staff.discordId).map(obj => `<@${obj.staff.discordId}>`)
+				list.unshift(`<@${host.discordId}> ***HOST***`)
 
-			if (selectedflight.aircraft.modelId != null) {
-				if (selectedflight.aircraft.premiumPlus != 0) {
-					classemojis += " <:skrprp:1059119094789582943>"
+				var classemojis = ""
+
+				if (selectedflight.aircraft.modelId != null) {
+					if (selectedflight.aircraft.premiumPlus != 0) {
+						classemojis += " <:skrprp:1059119094789582943>"
+					}
+					if (selectedflight.aircraft.premium != 0) {
+						classemojis += " <:skrpr:1202940106084847647>"
+					}
+					if (selectedflight.aircraft.economyPlus != 0) {
+						classemojis += " <:skrecp:1059119096899313674>"
+					}
+					if (selectedflight.aircraft.economy != 0) {
+						classemojis += " <:skrec:1059119098405072938>"
+					}
 				}
-				if (selectedflight.aircraft.premium != 0) {
-					classemojis += " <:skrpr:1202940106084847647>"
-				}
-				if (selectedflight.aircraft.economyPlus != 0) {
-					classemojis += " <:skrecp:1059119096899313674>"
-				}
-				if (selectedflight.aircraft.economy != 0) {
-					classemojis += " <:skrec:1059119098405072938>"
-				}
+
+				const joinbutton = new ButtonBuilder()
+					.setCustomId("joinflight|"+selectedflight.id)
+					.setLabel("Join")
+					.setStyle(ButtonStyle.Success)
+
+				const leavebutton = new ButtonBuilder()
+					.setCustomId("leaveflight|"+selectedflight.id)
+					.setLabel("Leave")
+					.setStyle(ButtonStyle.Danger)
+				
+				const refreshbutton = new ButtonBuilder()
+					.setCustomId("refreshflight|"+selectedflight.id)
+					.setEmoji("801832417567965205")
+					.setStyle(ButtonStyle.Secondary)
+
+				client.channels.cache.get("889184813175689226").send({
+					content: "`@everyone`",
+					embeds: [
+						new EmbedBuilder()
+							.setColor("#2b2d31")
+							.setTitle(selectedflight.flightNumber)
+							.setURL("https://staff.skyrden.com/flights/"+flightid)
+							.setDescription(`<:aircraft:1203078640871677982> \`${selectedflight.aircraft.name}\`${classemojis}\n\n<:gate:1203078645619621919> \`${selectedflight.airport.gate}\`\n<:origin:1203078648912150558> \`${selectedflight.airport.name}\`\n<:destination:1203078644319133767> \`${selectedflight.airport.destination}\`\n\n<:time:1203078650241744996> <t:${selectedflight.date-900}:t> <t:${selectedflight.date-900}:R>\n<:day:1203078643128082442> <t:${selectedflight.date-900}:D>`)
+							.addFields({name: "Joined Users", value: list.join("\n")})
+					],
+					components: [
+						new ActionRowBuilder().addComponents(joinbutton, leavebutton, refreshbutton)
+					]
+				})
+				.then(() => {
+					res.status(200).json({message: 'Sent successfully'});
+
+					client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${JSON.stringify(req.body).replace(externalkey, "##REDACTED##")}\`\`\``)
+				})
+				.catch(e => {
+					res.status(500).json({message: 'Failed', error: `${e}`});
+				})
+			} else {
+				res.status(500).json({message: 'Failed', error: "Flight form already exists"});
 			}
-
-			const joinbutton = new ButtonBuilder()
-				.setCustomId("joinflight|"+selectedflight.id)
-				.setLabel("Join")
-				.setStyle(ButtonStyle.Success)
-
-			const leavebutton = new ButtonBuilder()
-				.setCustomId("leaveflight|"+selectedflight.id)
-				.setLabel("Leave")
-				.setStyle(ButtonStyle.Danger)
-
-			client.channels.cache.get("889184813175689226").send({
-				content: "`@everyone`",
-				embeds: [
-					new EmbedBuilder()
-					.setColor("#2b2d31")
-					.setTitle(selectedflight.flightNumber)
-					.setURL("https://staff.skyrden.com/flights/"+flightid)
-					.setDescription(`<:aircraft:1203078640871677982> \`${selectedflight.aircraft.name}\`${classemojis}\n\n<:gate:1203078645619621919> \`${selectedflight.airport.gate}\`\n<:origin:1203078648912150558> \`${selectedflight.airport.name}\`\n<:destination:1203078644319133767> \`${selectedflight.airport.destination}\`\n\n<:time:1203078650241744996> <t:${selectedflight.date}:t> <t:${selectedflight.date}:R>\n<:day:1203078643128082442> <t:${selectedflight.date}:D>`)
-					.addFields({name: "Joined Users", value: `<@${host.discordId}> ***HOST***`})
-				],
-				components: [
-					new ActionRowBuilder().addComponents(joinbutton, leavebutton)
-				]
-			})
-			.then(() => {
-				res.status(200).json({message: 'Sent successfully'});
-
-				client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${JSON.stringify(req.body).replace(externalkey, "##REDACTED##")}\`\`\``)
-			})
-			.catch(e => {
-				res.status(500).json({message: 'Failed', error: `${e}`});
-			})
 		} else {
-			res.status(500).json({message: 'Failed', error: "Flight form already exists"});
+			res.status(500).json({message: 'Failed', error: "Invalid flight ID "+flightid});
 		}
 	} else {
-		res.status(500).json({message: 'Failed', error: "Invalid flight ID "+flightid});
+		res.status(401).json({message: 'Invalid token'})
 	}
 })
 
