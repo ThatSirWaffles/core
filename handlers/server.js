@@ -371,7 +371,7 @@ server.post('/createflightform/:flightid', async (req, res) => {
 					.setStyle(ButtonStyle.Secondary)
 
 				client.channels.cache.get("889184813175689226").send({
-					content: "`@everyone`",
+					content: "@everyone",
 					embeds: [
 						new EmbedBuilder()
 							.setColor("#2b2d31")
