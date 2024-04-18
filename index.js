@@ -10,10 +10,10 @@ scriptFiles.forEach(file => {
   require(scriptPath);
 });
 
-const { Client, GatewayIntentBits, REST, Collection, Events, Routes } = require('discord.js');
+const { Client, GatewayIntentBits, REST, Collection, Events, Routes, Partials } = require('discord.js');
 const { token, mainguildid, staffguildid } = require("./config.json");
 
-global.client = new Client({intents: [GatewayIntentBits.Guilds],});
+global.client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageTyping], partials: [Partials.Channel]});
 
 client.login(token);
 

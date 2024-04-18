@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ComponentType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, EmbedBuilder } = require('discord.js');
-const {info, success, fail} = require("../../config.json")
+const {info, success, fail} = require("../../config.json");
 
 
 module.exports = {
@@ -17,24 +17,16 @@ module.exports = {
 		if (flights.length == 0) { 
 			await interaction.followUp({embeds: new EmbedBuilder().setColor("002244").setDescription("No flights scheduled, check back later"), ephemeral: true});
 		} else {
-			var emoji
-	
 			const flightpicker = new StringSelectMenuBuilder()
 				.setCustomId("flightpicker")
 				.setPlaceholder('Select a flight')
 	
 			for (const flight of flights) {
-				if (flight.flightNumber.includes("SKR")) {
-					emoji = "1160343438290595900";
-				} else {
-					emoji = "1160343441474060398";
-				};
-	
 				flightpicker.addOptions(
 					new StringSelectMenuOptionBuilder()
 						.setLabel(flight.flightNumber)
 						.setDescription(`On ${new Intl.DateTimeFormat('en-GB').format(new Date(flight.date*1000))} from ${flight.airport.name}`)
-						.setEmoji(emoji)
+						.setEmoji(flight.flightNumber.includes("SKR") ? "1160343438290595900" : "1160343441474060398")
 						.setValue(String(flight.id))
 				)
 			}
@@ -90,7 +82,7 @@ module.exports = {
 					embeds: [
 						new EmbedBuilder()
 						.setColor("#2b2d31")	
-						.setDescription(info+" *Timed out*")
+						.setDescription(fail+" *Timed out*")
 					],
 					components: []
 				})

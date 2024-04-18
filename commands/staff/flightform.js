@@ -74,7 +74,7 @@ module.exports = {
 						embeds: [
 							new EmbedBuilder()
 							.setColor("#2b2d31")	
-							.setDescription(info+" *Timed out*")
+							.setDescription(fail+" *Timed out*")
 						],
 						components: []
 					})
