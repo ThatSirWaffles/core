@@ -81,7 +81,7 @@ module.exports = {
 						supportguild.channels.create({name: message.author.username})
 						.then(c => {
 							c.setParent(depts.find(i => i.name == collected.values[0]).id);
-							c.setTopic("Transmit messages by prefixing them with -. Do not manually manipulate channels.");
+							c.setTopic("Transmit messages by prefixing them with -");
 
 							Ticket.create({
 								created: Date.now(),
@@ -102,7 +102,7 @@ module.exports = {
 							c.send({
 								embeds: [
 									new EmbedBuilder()
-									.setColor("#f0a21d")	
+									.setColor("#2b2d31")	
 									.setDescription(`<@${message.author.id}>\n\n*Remember to prefix messages with \`-\` to transmit them.*`)
 									.setAuthor({name: `${message.author.globalName} (@${message.author.username})`, iconURL: message.author.avatarURL()})
 								],
@@ -111,7 +111,6 @@ module.exports = {
 						});
 					})
 					.catch(e => {
-						console.log(e);
 						response.edit({
 							embeds: [
 								new EmbedBuilder()
