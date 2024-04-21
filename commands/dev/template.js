@@ -10,6 +10,8 @@ const {
 	info
 } = require("../../config.json")
 
+
+
 module.exports = {
 	category: 'dev',
 	data: data = new SlashCommandBuilder()

@@ -11,9 +11,15 @@ scriptFiles.forEach(file => {
 });
 
 const { Client, GatewayIntentBits, REST, Collection, Events, Routes, Partials } = require('discord.js');
-const { token, mainguildid, staffguildid } = require("./config.json");
+const { token, mainguildid, staffguildid, supportguildid } = require("./config.json");
 
-global.client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages, GatewayIntentBits.DirectMessageTyping], partials: [Partials.Channel]});
+global.client = new Client({intents: [
+	GatewayIntentBits.Guilds,
+	GatewayIntentBits.GuildMessages,
+	GatewayIntentBits.MessageContent,
+	GatewayIntentBits.DirectMessages,
+	GatewayIntentBits.DirectMessageTyping
+], partials: [Partials.Channel]});
 
 client.login(token);
 
@@ -25,6 +31,11 @@ client.guilds.fetch(mainguildid)
 client.guilds.fetch(staffguildid)
 .then(guild => {
 	global.staffguild = guild;
+})
+
+client.guilds.fetch(supportguildid)
+.then(guild => {
+	global.supportguild = guild;
 })
 
 client.commands = new Collection();

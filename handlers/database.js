@@ -1,11 +1,17 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-mongoose.connect('mongodb://localhost:27017/');
+mongoose.connect('mongodb://localhost:27017/core');
 
-// export const ticket = mongoose.model(new Schema({
-// 	channel: String,
-// 	author: String,
-// 	agent: String,
-// 	department: String
-// }));
+const Ticket = mongoose.model("Ticket", new Schema(
+	{
+		created: Number,
+		channel: String,
+		author: String,
+		department: String
+	}
+));
+
+module.exports = {
+	Ticket
+};

@@ -143,8 +143,6 @@ module.exports = {
 					],
 					ephemeral: true});
 				});
-			} else {
-				await interaction.reply({content: "shoopdiwoop there's nothing here lol sryy if this is wrong send a dm to @sirwaffles", ephemeral: true});
 			}
 		}
 	},
