@@ -6,6 +6,6 @@ module.exports = {
 	execute(client) {
 		console.log(`Logged in as ${client.user.tag}!`);
 		client.user.setStatus('dnd');
-		client.user.setActivity('from your basement', {type: ActivityType.Streaming, url: "https://www.youtube.com/watch?v=xvFZjo5PgG0"});
+		client.user.setActivity('tickets in DMs', {type: ActivityType.Streaming, url: "https://www.youtube.com/watch?v=XCwvMGEe4I4"});
 	},
 };

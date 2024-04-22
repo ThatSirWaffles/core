@@ -79,7 +79,7 @@ module.exports = {
 					response.awaitMessageComponent({ filter: collectorFilter, componentType: ComponentType.StringSelect, time: 20000 })
 					.then(async collected => {
 						supportguild.channels.create({name: message.author.username})
-						.then(c => {
+						.then(async c => {
 							c.setParent(depts.find(i => i.name == collected.values[0]).id);
 							c.setTopic("Transmit messages by prefixing them with -");
 
@@ -106,7 +106,7 @@ module.exports = {
 									.setDescription(`<@${message.author.id}>\n\n*Remember to prefix messages with \`-\` to transmit them.*`)
 									.setAuthor({name: `${message.author.globalName} (@${message.author.username})`, iconURL: message.author.avatarURL()})
 								],
-								content: "@here"
+								content: supportguild.members.fetch(message.author.id) ? "`@here`" : "@here"
 							});
 						});
 					})

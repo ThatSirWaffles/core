@@ -75,7 +75,7 @@ module.exports = {
 							embeds: [
 								new EmbedBuilder()
 								.setColor("#2b2d31")
-								.setDescription(`- Ticket ID: \`${result._id}\`\n- Closed by: ${interaction.user}`)
+								.setDescription(`- Ticket ID: \`${result._id}\`\n- Created by: <@${result.author}>\n- Closed by: ${interaction.user}`)
 							],
 							files: [attachment]
 						});
