@@ -67,7 +67,7 @@ module.exports = {
 						embeds: [
 							new EmbedBuilder()
 							.setColor("#2b2d31")	
-							.setDescription(info+" Please only use my DMs to open a ticket. This first message will be ignored. **Select a department to contact:**")
+							.setDescription(info+" Please only use my DMs to open a ticket. This first message will be ignored. Please review our <#1122071026856103989> to see if your question may have already been answered there, otherwise please **select a department to contact:**")
 						]
 					});
 
@@ -106,7 +106,7 @@ module.exports = {
 									.setDescription(`<@${message.author.id}>\n\n*Remember to prefix messages with \`-\` to transmit them.*`)
 									.setAuthor({name: `${message.author.globalName} (@${message.author.username})`, iconURL: message.author.avatarURL()})
 								],
-								content: supportguild.members.fetch(message.author.id) ? "`@here`" : "@here"
+								content: "@here"
 							});
 						});
 					})
@@ -127,7 +127,9 @@ module.exports = {
 				if (result) {
 					const noprefix = message.content.slice(1)
 
-					client.users.cache.get(result.author).send({
+					const author = await mainguild.members.fetch(result.author);
+
+					author.send({
 						embeds: [
 							new EmbedBuilder()
 							.setColor("#2b2d31")	

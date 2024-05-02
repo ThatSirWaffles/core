@@ -26,12 +26,12 @@ module.exports = {
 	async execute(interaction) {
 		if (interaction.channel.parent && depts.some(dept => dept.id == interaction.channel.parent.id)) {
 			const confirmbutton = new ButtonBuilder()
-				.setCustomId("confirm")
+				.setCustomId("confirmTicketClose")
 				.setLabel("Confirm")
 				.setStyle(ButtonStyle.Danger)
 
 			const cancelbutton = new ButtonBuilder()
-				.setCustomId("cancel")
+				.setCustomId("cancelTicketClose")
 				.setLabel("Cancel")
 				.setStyle(ButtonStyle.Secondary)
 
@@ -52,7 +52,7 @@ module.exports = {
 
 			message.awaitMessageComponent({ filter: collectorFilter, componentType: ComponentType.Button, time: 10000 })
 			.then(async i => {
-				if (i.customId == "confirm") {
+				if (i.customId == "confirmTicketClose") {
 					const result = await Ticket.findOne({channel: interaction.channel.id});
 
 					if (result) {

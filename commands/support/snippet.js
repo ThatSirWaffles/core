@@ -37,7 +37,6 @@ module.exports = {
 				.addChoices(...snippets.map(item => ({name: item.name, value: item.name})))),
 	async execute(interaction) {
 		if (interaction.channel.parent && depts.some(dept => dept.id == interaction.channel.parent.id)) {
-			console.log(interaction.channelId)
 			const result = await Ticket.findOne({channel: interaction.channelId});
 
 			if (result) {

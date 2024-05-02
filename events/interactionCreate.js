@@ -1,5 +1,5 @@
 const { Events, ModalBuilder, EmbedBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle } = require('discord.js');
-const {info, success, fail, staffhubkey, externalkey} = require("../config.json")
+const {info, success, fail, staffhubkey, externalkey, botkey} = require("../config.json")
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -28,7 +28,7 @@ module.exports = {
 
 			const args = interaction.customId.split("|");
 			if (args[0] == "joinflight") {
-				const signups = (await (await fetch("https://staff.skyrden.com/api/v1/signups/flights?flightId="+args[1], {headers:{Authorization: staffhubkey}})).json()).data;
+				const signups = (await (await fetch("https://staff.skyrden.com/api/v1/signups/flights?flightId="+args[1], {"Content-Type": "application/json", headers:{Authorization: staffhubkey}})).json()).data;
 
 				if (signups.some(obj => obj.staff.discordId == interaction.user.id)) {
 					await interaction.reply({embeds: [
@@ -87,7 +87,7 @@ module.exports = {
 						})
 					})
 					.catch(() => {
-						interaction.reply({embeds: [
+						interaction.followUp({embeds: [
 						new EmbedBuilder()
 							.setColor("#2b2d31")	
 							.setDescription(fail+" *Timed out*")
@@ -97,10 +97,10 @@ module.exports = {
 				}
 			} else if (args[0] == "leaveflight") {
 				await interaction.deferReply({ephemeral: true});
-				const signups = (await (await fetch("https://staff.skyrden.com/api/v1/signups/flights?flightId="+args[1], {headers:{Authorization: staffhubkey}})).json()).data;
+				const signups = (await (await fetch("https://staff.skyrden.com/api/v1/signups/flights?flightId="+args[1], {"Content-Type": "application/json", headers:{Authorization: staffhubkey}})).json()).data;
 
 				if (signups.some(obj => obj.staff.discordId == interaction.user.id)) {
-					fetch('https://staff.skyrden.com/api/v1/signups/flights/'+signups.filter(obj => obj.staff.discordId == interaction.user.id)[0].id, {method: "DELETE", headers:{Authorization: staffhubkey}})
+					fetch('https://staff.skyrden.com/api/v1/signups/flights/'+signups.filter(obj => obj.staff.discordId == interaction.user.id)[0].id, {method: "DELETE", headers:{"Content-Type": "application/json", Authorization: staffhubkey}})
 					.then(async () => {
 						fetch(`http://localhost:8010/updateflightform/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: externalkey})})
 						.then(() => {
@@ -135,6 +135,38 @@ module.exports = {
 				interaction.deferReply({ephemeral: true});
 				fetch(`http://localhost:8010/updateflightform/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: externalkey})})
 				.then(() => interaction.deleteReply())
+				.catch(err => {
+					interaction.followUp({embeds: [
+						new EmbedBuilder()
+							.setColor("#2b2d31")
+							.setDescription(fail+` Failed, please report the bug to @sirwaffles\`\`\`${err}\`\`\``)
+					],
+					ephemeral: true});
+				});
+			} else if (args[0] == "confirmAutoRank") {
+				interaction.deferReply({ephemeral: true});
+				fetch(`http://localhost:8000/rank/${args[1]}/5`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: botkey})})
+				.then(() => {
+					interaction.deleteReply();
+					interaction.message.delete();
+					client.channels.cache.get("994709325186600980").send(`${interaction.user.username} manually ranked [${args[2]}](<https://www.roblox.com/users/${args[1]}/profile>) to EC (${Math.round(args[3] / (1000 * 3600 * 24))} days old)`);
+				})
+				.catch(err => {
+					interaction.followUp({embeds: [
+						new EmbedBuilder()
+							.setColor("#2b2d31")
+							.setDescription(fail+` Failed, please report the bug to @sirwaffles\`\`\`${err}\`\`\``)
+					],
+					ephemeral: true});
+				});
+			} else if (args[0] == "kickAutoRank") {
+				interaction.deferReply({ephemeral: true});
+				fetch(`http://localhost:8000/kick/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: botkey})})
+				.then(() => {
+					interaction.deleteReply();
+					interaction.message.delete();
+					client.channels.cache.get("994709325186600980").send(`${interaction.user.username} manually kicked [${args[2]}](<https://www.roblox.com/users/${args[1]}/profile>) (${Math.round(args[3] / (1000 * 3600 * 24))} days old)`);
+				})
 				.catch(err => {
 					interaction.followUp({embeds: [
 						new EmbedBuilder()
