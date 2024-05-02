@@ -44,4 +44,4 @@ async function checkForWFA() {
 	}
 }
 
-setInterval(checkForWFA, 10000)
+setInterval(checkForWFA, 60000)
