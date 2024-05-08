@@ -42,7 +42,9 @@ module.exports = {
 			if (result) {
 				const val = snippets.find(obj => obj.name == interaction.options.getString('snippet', true)).value
 
-				client.users.cache.get(result.author).send({
+				const author = await mainguild.members.fetch(result.author);
+
+				author.send({
 					embeds: [
 						new EmbedBuilder()
 						.setColor("#2b2d31")	

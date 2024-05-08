@@ -1,5 +1,6 @@
 const { Events, ModalBuilder, EmbedBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle } = require('discord.js');
-const {info, success, fail, staffhubkey, externalkey, botkey} = require("../config.json")
+const {info, success, fail, staffhubkey, externalkey, botkey} = require("../config.json");
+const { Ban } = require('../handlers/database');
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -175,6 +176,58 @@ module.exports = {
 					],
 					ephemeral: true});
 				});
+			} else if (args[0] == "banAutoRank") {
+				const modal = new ModalBuilder()
+					.setCustomId('banAutoRank')
+					.setTitle('Ban '+args[2]);
+
+				const reasonInput = new TextInputBuilder()
+					.setCustomId('reasonInput')
+					.setLabel("Reason for ban")
+					.setStyle(TextInputStyle.Paragraph);
+
+				modal.addComponents(new ActionRowBuilder().addComponents(reasonInput));
+
+				await interaction.showModal(modal);
+				
+				interaction.awaitModalSubmit({
+					time: 60000,
+					filter: i => i.user.id === interaction.user.id,
+				})
+				.then(response => {
+					Ban.create({
+						executed: Date.now(),
+						author: interaction.user.id,
+						victim: args[1],
+						reason: response.fields.getTextInputValue("reasonInput")
+					});
+
+					response.deferReply();
+					response.deleteReply();
+	
+					fetch(`http://localhost:8000/kick/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: botkey})})
+					.then(() => {
+						interaction.message.delete();
+						client.channels.cache.get("994709325186600980").send(`${interaction.user.username} banned [${args[2]}](<https://www.roblox.com/users/${args[1]}/profile>) (${Math.round(args[3] / (1000 * 3600 * 24))} days old). Contact @sirwaffles to undo.`);
+					})
+					.catch(err => {
+						interaction.followUp({embeds: [
+							new EmbedBuilder()
+								.setColor("#2b2d31")
+								.setDescription(fail+` Failed, please report the bug to @sirwaffles\`\`\`${err}\`\`\``)
+						],
+						ephemeral: true});
+					});
+				})
+				.catch(() => {
+					interaction.followUp({embeds: [
+						new EmbedBuilder()
+							.setColor("#2b2d31")	
+							.setDescription(fail+" *Timed out*")
+						],
+						ephemeral: true}
+					);
+				})
 			}
 		}
 	},
