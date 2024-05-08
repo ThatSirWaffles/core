@@ -7,6 +7,7 @@ server.use(express.json());
 
 const { externalkey, flightformchannelid, staffhubkey, eventannouncements, flightlist } = require("../config.json");
 const { EmbedBuilder, GuildScheduledEventPrivacyLevel, GuildScheduledEventEntityType, GuildScheduledEventManager, GuildScheduledEventStatus, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
+const { Ban } = require('./database');
 
 var jobs = []
 
@@ -401,6 +402,17 @@ server.post('/createflightform/:flightid', async (req, res) => {
 	} else {
 		res.status(401).json({message: 'Invalid token'})
 	}
+})
+
+server.get('/groupbans/', async (req, res) => {
+	Ban.find({}, { date: 1, victim: 1, reason: 1 })
+	.exec()
+	.then(bans => {
+		res.status(200).json({ data: bans });
+	})
+	.catch(err => {
+		res.status(500).json({ error: err.message });
+	});
 })
 
 server.all('/', async (req, res) => {
