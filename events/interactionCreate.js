@@ -64,10 +64,11 @@ module.exports = {
 						}
 
 						fetch('https://staff.skyrden.com/api/v1/signups/flights', {method: "POST", body: JSON.stringify(body), headers:{"Content-Type": "application/json", Authorization: staffhubkey}})
-						.then(async () => {
+						.then(async res => {
+							console.log(res);
 							fetch(`http://localhost:8010/updateflightform/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: externalkey})})
 							.then(() => {
-								interaction.followUp({embeds: [
+								modalInteraction.reply({embeds: [
 									new EmbedBuilder()
 										.setColor("#2b2d31")
 										.setDescription(success+`Added to **${interaction.message.embeds[0].title}**`)
@@ -190,11 +191,8 @@ module.exports = {
 
 				await interaction.showModal(modal);
 				
-				interaction.awaitModalSubmit({
-					time: 60000,
-					filter: i => i.user.id === interaction.user.id,
-				})
-				.then(response => {
+				interaction.awaitModalSubmit({filter: async (i) => i.user.id === interaction.user.id, time: 60000})
+				.then(async modalInteraction => {
 					Ban.create({
 						date: Date.now(),
 						author: interaction.user.id,
@@ -202,8 +200,8 @@ module.exports = {
 						reason: response.fields.getTextInputValue("reasonInput")
 					});
 
-					response.deferReply();
-					response.deleteReply();
+					modalInteraction.deferReply();
+					modalInteraction.deleteReply();
 	
 					// fetch(`http://localhost:8000/kick/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: botkey})})
 					// .then(() => {
