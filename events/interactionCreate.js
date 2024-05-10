@@ -65,7 +65,6 @@ module.exports = {
 
 						fetch('https://staff.skyrden.com/api/v1/signups/flights', {method: "POST", body: JSON.stringify(body), headers:{"Content-Type": "application/json", Authorization: staffhubkey}})
 						.then(async res => {
-							console.log(res);
 							fetch(`http://localhost:8010/updateflightform/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: externalkey})})
 							.then(() => {
 								modalInteraction.reply({embeds: [
@@ -197,27 +196,27 @@ module.exports = {
 						date: Date.now(),
 						author: interaction.user.id,
 						victim: args[1],
-						reason: response.fields.getTextInputValue("reasonInput")
+						reason: modalInteraction.fields.getTextInputValue("reasonInput")
 					});
 
 					modalInteraction.deferReply();
 					modalInteraction.deleteReply();
 	
-					// fetch(`http://localhost:8000/kick/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: botkey})})
-					// .then(() => {
-					// 	interaction.message.delete();
-					// 	client.channels.cache.get("994709325186600980").send(`${interaction.user.username} banned [${args[2]}](<https://www.roblox.com/users/${args[1]}/profile>) (${Math.round(args[3] / (1000 * 3600 * 24))} days old). Contact @sirwaffles to undo.`);
-					// })
-					// .catch(err => {
-					// 	interaction.followUp({embeds: [
-					// 		new EmbedBuilder()
-					// 			.setColor("#2b2d31")
-					// 			.setDescription(fail+` Failed, please report the bug to @sirwaffles\`\`\`${err}\`\`\``)
-					// 	],
-					// 	ephemeral: true});
-					// });
+					fetch(`http://localhost:8000/kick/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: botkey})})
+					.then(() => {
+						interaction.message.delete();
+						client.channels.cache.get("994709325186600980").send(`${interaction.user.username} banned [${args[2]}](<https://www.roblox.com/users/${args[1]}/profile>) (${Math.round(args[3] / (1000 * 3600 * 24))} days old). Contact @sirwaffles to undo.`);
+					})
+					.catch(err => {
+						interaction.followUp({embeds: [
+							new EmbedBuilder()
+								.setColor("#2b2d31")
+								.setDescription(fail+` Failed, please report the bug to @sirwaffles\`\`\`${err}\`\`\``)
+						],
+						ephemeral: true});
+					});
 				})
-				.catch(() => {
+				.catch(e => {
 					interaction.followUp({embeds: [
 						new EmbedBuilder()
 							.setColor("#2b2d31")	
