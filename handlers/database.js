@@ -19,7 +19,30 @@ const Ban = mongoose.model("Ban", new Schema({
 	}, { collection: 'groupBans' })
 );
 
+const User = mongoose.model("User", new Schema({
+	userId: Number,
+	skyrbux: Number,
+	flightsAttended: Number,
+	roblox: {
+		id: String,
+		name: String
+	},
+	discord: {
+		id: String,
+		name: String,
+		streak: Number,
+	}
+}, { collection: 'users' })
+);
+
+const System = mongoose.model("System", new Schema({
+	userCounter: Number
+}, { collection: 'system' })
+);
+
 module.exports = {
 	Ticket,
-	Ban
+	Ban,
+	User,
+	System
 };

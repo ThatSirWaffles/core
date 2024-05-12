@@ -15,7 +15,7 @@ async function checkForWFA() {
 				fetch(`http://localhost:8000/kick/${obj.userId}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: botkey})})
 				.then(res => {
 					if (!res.ok) {
-						Error(res.statusText)
+						throw new Error(res.statusText)
 					}
 				})
 				.then(() => {

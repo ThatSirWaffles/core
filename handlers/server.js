@@ -7,7 +7,8 @@ server.use(express.json());
 
 const { externalkey, flightformchannelid, staffhubkey, eventannouncements, flightlist } = require("../config.json");
 const { EmbedBuilder, GuildScheduledEventPrivacyLevel, GuildScheduledEventEntityType, GuildScheduledEventManager, GuildScheduledEventStatus, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
-const { Ban } = require('./database');
+const { Ban, User, System } = require('./database');
+const { updateRoles } = require('../commands/public/verify');
 
 var jobs = []
 
@@ -52,7 +53,7 @@ server.post('/send/bulkusers/', async (req, res) => {
 		
 						client.users.send(obj.userid, {embeds: [embed]})
 						.catch((e) => {
-							Error(e)
+							throw new Error(e)
 						})
 
 						if (i++ == bulk.length) {
@@ -103,7 +104,7 @@ server.post('/send/user/:userid', async (req, res) => {
 				});
 			})
 			.catch((e) => {
-				Error(e)
+				throw new Error(e)
 			})
 		} catch (e) {
 			res.status(500).json({message: 'Failed', error: `${e}`})
@@ -163,7 +164,7 @@ server.post('/customsend/user/:userid', async (req, res) => {
 				client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${JSON.stringify(req.body).replace(externalkey, "##REDACTED##")}\`\`\``)
 			})
 			.catch((e) => {
-				Error(e)
+				throw new Error(e)
 			})
 		} catch (e) {
 			res.status(500).json({message: 'Failed', error: `${e}`})
@@ -181,14 +182,14 @@ server.post('/customsend/channel/:channelid', async (req, res) => {
 		try {
 			client.channels.cache.get(channelid).send(message)
 			.catch(e => {
-				Error(e)
+				throw new Error(e)
 			});
 
 			res.status(200).json({message: 'Sent successfully'})
 
 			client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${JSON.stringify(req.body).replace(externalkey, "##REDACTED##")}\`\`\``)
 			.catch(e => {
-				Error(e)
+				throw new Error(e)
 			});
 		} catch (e) {
 			res.status(500).json({message: 'Failed', error: `${e}`})
@@ -413,6 +414,102 @@ server.get('/groupbans/', async (req, res) => {
 	.catch(err => {
 		res.status(500).json({ error: err.message });
 	});
+})
+
+server.get('/checkcode/:userid/:code', async (req, res) => {
+	const {userid, code} = req.params
+
+	if (verifCodes.some(obj => obj.code == code)) {
+		const obj = verifCodes.find(obj => obj.code == code)
+		res.status(202).json({message: 'Code valid, linked Discord', username: obj.username})
+
+		var result = await User.findOne({'roblox.id': userid});
+
+		if (!result) {
+			const username = await (await fetch("https://users.roblox.com/v1/users/"+userid)).json();
+			const sys = await System.findOne();
+
+			result = User.create({
+				roblox: {
+					id: userid,
+					name: username.name
+				},
+				userId: sys.userCounter,
+				skyrbux: 0,
+				flightsAttended: 0,
+				discord: {
+					id: obj.userid,
+					name: obj.username
+				}
+			});
+
+			sys.userCounter += 1;
+			await sys.save();
+		} else {
+			result.discord = {
+				id: obj.userid,
+				name: obj.username
+			};
+			await result.save();
+		}
+		
+		updateRoles(result, mainguild.members.cache.get(obj.userid))
+
+		clearTimeout(obj.ref);
+		verifCodes = verifCodes.filter(obj => obj.code !== code);
+	} else {
+		res.status(500).json({message: 'Invalid code'})
+	}
+})
+
+server.post('/users/init/:userid', async (req, res) => {
+	const {userid} = req.params;
+	const {token} = req.body
+
+	if (token == externalkey) {
+		try {
+			const result = await User.findOne({'roblox.id': userid});
+
+			if (result) {
+				throw new Error("Already exists")
+			} else {
+				const username = await (await fetch("https://users.roblox.com/v1/users/"+userid)).json();
+				const sys = await System.findOne();
+
+				User.create({
+					roblox: {
+						id: userid,
+						name: username.name
+					},
+					userId: sys.userCounter,
+					skyrbux: 0,
+					flightsAttended: 0,
+				});
+
+				sys.userCounter += 1;
+				await sys.save();
+
+				res.status(201).json({message: 'Created successfully'})
+			}
+		} catch (e) {
+			console.log(e)
+			res.status(500).json({message: 'Failed', error: `${e}`})
+		}
+	} else {
+		res.status(401).json({message: 'Invalid token'})
+	}
+})
+
+server.get('/users/search/:param/:value', async (req, res) => {
+	const {param, value} = req.params
+
+	const result = await User.findOne({[param]: value});
+
+	if (result) {
+		res.status(200).json(result);
+	} else {
+		res.status(404).json({message: 'No user found'});
+	}
 })
 
 server.all('/', async (req, res) => {

@@ -13,6 +13,8 @@ scriptFiles.forEach(file => {
 const { Client, GatewayIntentBits, REST, Collection, Events, Routes, Partials } = require('discord.js');
 const { token, mainguildid, staffguildid, supportguildid } = require("./config.json");
 
+global.verifCodes = []
+
 global.client = new Client({intents: [
 	GatewayIntentBits.Guilds,
 	GatewayIntentBits.GuildMessages,

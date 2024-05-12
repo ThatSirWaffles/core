@@ -75,7 +75,7 @@ module.exports = {
 								ephemeral: true});
 							})
 							.catch(error => {
-								error(error);
+								throw new Error(error);
 							});
 						})
 						.catch(err => {
@@ -113,7 +113,7 @@ module.exports = {
 							ephemeral: true});
 						})
 						.catch(error => {
-							error(error);
+							throw new Error(error);
 						});
 					})
 					.catch(err => {
