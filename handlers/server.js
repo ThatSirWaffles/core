@@ -432,7 +432,8 @@ server.get('/checkcode/:userid/:code', async (req, res) => {
 			result = User.create({
 				roblox: {
 					id: userid,
-					name: username.name
+					name: username.name,
+					nick: username.displayName
 				},
 				userId: sys.userCounter,
 				skyrbux: 0,
@@ -479,7 +480,8 @@ server.post('/users/init/:userid', async (req, res) => {
 				User.create({
 					roblox: {
 						id: userid,
-						name: username.name
+						name: username.name,
+						nick: username.displayName
 					},
 					userId: sys.userCounter,
 					skyrbux: 0,

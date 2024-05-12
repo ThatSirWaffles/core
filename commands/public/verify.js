@@ -26,6 +26,9 @@ async function updateRoles(profile, member) {
 
 		member.roles.add(mainguild.roles.cache.get("900798313085952051"));
 
+		member.setNickname((profile.roblox.nick == profile.roblox.name || `${profile.roblox.nick} (@${profile.roblox.name})`.length > 32) ? profile.roblox.name : `${profile.roblox.nick} (@${profile.roblox.name})`)
+		.catch(() => {})
+		
 		return true
 	} else {
 		for (let id in rolesets) {
@@ -40,6 +43,9 @@ async function updateRoles(profile, member) {
 		}
 
 		member.roles.add(mainguild.roles.cache.get("900946036124680193"));
+
+		member.setNickname("")
+		.catch(() => {})
 
 		return false
 	}
@@ -83,7 +89,7 @@ module.exports = {
 				embeds: [
 					new EmbedBuilder()
 					.setColor("#2b2d31")
-					.setDescription(`**${info} Please do not share this code with anyone**\`\`\`${code}\`\`\`\n*Expires <t:${Math.floor(Date.now() / 1000) + (5 * 60)}:R>*`)
+					.setDescription(`- Join the [hub](https://www.roblox.com/games/15895614122/Skyrden-Hub)\n- Click on the **Verify** button under **Discord**\n\n**${info} Please do not share this code with anyone**\`\`\`${code}\`\`\`\n*Expires <t:${Math.floor(Date.now() / 1000) + (5 * 60)}:R>*`)
 				],
 				ephemeral: true
 			})

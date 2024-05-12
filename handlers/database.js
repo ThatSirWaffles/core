@@ -25,7 +25,8 @@ const User = mongoose.model("User", new Schema({
 	flightsAttended: Number,
 	roblox: {
 		id: String,
-		name: String
+		name: String,
+		nick: String,
 	},
 	discord: {
 		id: String,

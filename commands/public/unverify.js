@@ -16,11 +16,13 @@ module.exports = {
 			result.discord = undefined;
 			result.save();
 
+			interaction.member.setNickname("");
+
 			interaction.reply({
 				embeds: [
 					new EmbedBuilder()
 					.setColor("#2b2d31")
-					.setDescription(success+` Disconnected your Discord account from **${prev}**`)
+					.setDescription(success+` Disconnected your Discord account from \`\`\`${prev}\`\`\``)
 				],
 				ephemeral: true
 			})
