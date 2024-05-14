@@ -1,6 +1,6 @@
 const { Events, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ComponentType } = require('discord.js');
-const {info, success, fail, depts, supportguildid} = require("../config.json")
-const {Ticket} = require("../handlers/database.js");
+const {info, success, fail, depts, supportguildid, mainguildid} = require("../config.json")
+const {Ticket, User} = require("../handlers/database.js");
 const { time } = require('console');
 
 module.exports = {
@@ -121,7 +121,7 @@ module.exports = {
 						})
 					});
 				}
-			} else if (message.content[0] == "-" && message.guild.id == supportguildid && message.channel.parent && depts.some(dept => dept.id == message.channel.parent.id)) {
+			} else if (message.guild.id == supportguildid && message.content[0] == "-" && message.channel.parent && depts.some(dept => dept.id == message.channel.parent.id)) {
 				const result = await Ticket.findOne({channel: message.channelId});
 
 				if (result) {
@@ -156,6 +156,23 @@ module.exports = {
 					message.delete();
 				} else {
 					message.channel.delete();
+				}
+			} else if (message.guild.id == mainguildid && message.channel.id == "891383611545251843") {
+				const profile = await User.findOne({'discord.id': message.author.id});
+
+				if (profile && profile.discord && ((Date.now() - profile.discord.lastStreak*1000) >= 12 * 60 * 60 * 1000 || !profile.discord.lastStreak || !profile.discord.streak)) {
+					message.reply({
+						embeds: [
+							new EmbedBuilder()
+							.setDescription(`:tada: Thank you for returning today! **You now have a ${profile.discord.streak+1} day streak.**`)
+						],
+						allowedMentions: {repliedUser: false}
+					})
+
+					profile.discord.streak += 1;
+					profile.discord.lastStreak = Math.round(Date.now()/1000)
+
+					profile.save();
 				}
 			}
 		}

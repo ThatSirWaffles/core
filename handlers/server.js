@@ -5,7 +5,7 @@ const bodyparser = require('body-parser');
 server.use(bodyparser.text());
 server.use(express.json());
 
-const { externalkey, flightformchannelid, staffhubkey, eventannouncements, flightlist } = require("../config.json");
+const { externalkey, flightformchannelid, staffhubkey, eventannouncements, flightlist, success } = require("../config.json");
 const { EmbedBuilder, GuildScheduledEventPrivacyLevel, GuildScheduledEventEntityType, GuildScheduledEventManager, GuildScheduledEventStatus, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
 const { Ban, User, System } = require('./database');
 const { updateRoles } = require('../commands/public/verify');
@@ -441,7 +441,8 @@ server.get('/checkcode/:userid/:code', async (req, res) => {
 				discord: {
 					id: obj.userid,
 					name: obj.username,
-					streak: 0
+					streak: 0,
+					lastStreak: 0
 				}
 			});
 
@@ -450,10 +451,22 @@ server.get('/checkcode/:userid/:code', async (req, res) => {
 		} else {
 			result.discord = {
 				id: obj.userid,
-				name: obj.username
+				name: obj.username,
+				streak: 0,
+				lastStreak: 0
 			};
 			await result.save();
 		}
+
+		client.users.send(obj.userid, {
+			embeds: [
+				new EmbedBuilder()
+				.setDescription(success+` Your account has been linked with **${result.roblox.name}** on Roblox`)
+			]
+		})
+		.catch(e => {
+			console.log(e)
+		})
 		
 		updateRoles(result, mainguild.members.cache.get(obj.userid))
 

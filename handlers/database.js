@@ -32,6 +32,7 @@ const User = mongoose.model("User", new Schema({
 		id: String,
 		name: String,
 		streak: Number,
+		lastStreak: Number
 	}
 }, { collection: 'users' })
 );
