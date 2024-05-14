@@ -440,7 +440,8 @@ server.get('/checkcode/:userid/:code', async (req, res) => {
 				flightsAttended: 0,
 				discord: {
 					id: obj.userid,
-					name: obj.username
+					name: obj.username,
+					streak: 0
 				}
 			});
 
