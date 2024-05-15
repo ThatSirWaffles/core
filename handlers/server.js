@@ -458,6 +458,8 @@ server.get('/checkcode/:userid/:code', async (req, res) => {
 			await result.save();
 		}
 
+		var result = await User.findOne({'roblox.id': userid});
+
 		client.users.send(obj.userid, {
 			embeds: [
 				new EmbedBuilder()
