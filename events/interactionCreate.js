@@ -225,6 +225,13 @@ module.exports = {
 						ephemeral: true}
 					);
 				})
+			} else if (args[0] == "roverVerification") {
+				interaction.reply({embeds: [
+					new EmbedBuilder()
+						.setColor("#2b2d31")
+						.setDescription(info+` This feature isn't available yet, check back later`)
+				],
+				ephemeral: true});
 			}
 		}
 	},

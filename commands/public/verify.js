@@ -1,5 +1,5 @@
-const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ComponentType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, EmbedBuilder } = require('discord.js');
-const {info, success, fail, rolesets} = require("../../config.json");
+const { SlashCommandBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ComponentType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, EmbedBuilder } = require('discord.js');
+const {info, success, fail, rolesets, mainguildid, roverkey} = require("../../config.json");
 const { User } = require('../../handlers/database');
 
 async function updateRoles(profile, member) {
@@ -84,15 +84,29 @@ module.exports = {
 			}, 5 * 60 * 1000);
 	
 			verifCodes.push({userid: interaction.user.id, username: interaction.user.username, code: code, ref: timeoutRef})
-	
-			interaction.reply({
+			
+			const probableUser = await (await fetch(`https://registry.rover.link/api/guilds/${mainguildid}/discord-to-roblox/${interaction.user.id}`, {headers:{Authorization: roverkey}})).json()
+
+			var draft = {
 				embeds: [
 					new EmbedBuilder()
 					.setColor("#2b2d31")
-					.setDescription(`- Join the [hub](https://www.roblox.com/games/15895614122/Skyrden-Hub)\n- Click on the **Verify** button under **Discord**\n\n**${info} Please do not share this code with anyone**\`\`\`${code}\`\`\`\n*Expires <t:${Math.floor(Date.now() / 1000) + (5 * 60)}:R>*`)
+					.setDescription(`- Join the [hub](https://www.roblox.com/games/15895614122/Skyrden-Hub)\n- Click on the **Verify** button under **Discord**\n\n**${info} Please do not share this code with anyone**\`\`\`${code}\`\`\`\n*Expires <t:${Math.floor(Date.now() / 1000) + (5 * 60)}:R>*`
+									+(probableUser.robloxId ? `\n\nYou seem to have linked **${probableUser.cachedUsername}** with RoVer. You can use this account by clicking the button below. If it isn't correct, you can change it [here](https://rover.link/verify), or verify with the instructions given above.` : "\n\nIf you would rather verify with RoVer, you can do so [here](https://rover.link/verify) and run this command again."))
 				],
-				ephemeral: true
-			})
+				ephemeral: true,
+			}
+
+			if (probableUser.robloxId) {
+				const roverbutton = new ButtonBuilder()
+					.setCustomId(`roverVerification|${probableUser.robloxId}`)
+					.setLabel("Verify with RoVer")
+					.setStyle(ButtonStyle.Secondary)
+				
+					draft.components = [new ActionRowBuilder().addComponents(roverbutton)]
+			}
+
+			interaction.reply(draft)
 		}
 	},
 	updateRoles
