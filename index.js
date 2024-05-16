@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
+process.title = 'Skyrden Core'
 const scriptsFolder = './handlers';
 
 const scriptFiles = fs.readdirSync(scriptsFolder).filter(file => file.endsWith('.js'));
