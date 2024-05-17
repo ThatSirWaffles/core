@@ -92,7 +92,7 @@ module.exports = {
 					new EmbedBuilder()
 					.setColor("#2b2d31")
 					.setDescription(`- Join the [hub](https://www.roblox.com/games/15895614122/Skyrden-Hub)\n- Click on the **Verify** button under **Discord**\n\n**${info} Please do not share this code with anyone**\`\`\`${code}\`\`\`\n*Expires <t:${Math.floor(Date.now() / 1000) + (5 * 60)}:R>*`
-									+(probableUser.robloxId ? `\n\nYou seem to have linked **${probableUser.cachedUsername}** with RoVer. You can use this account by clicking the button below. If it isn't correct, you can change it [here](https://rover.link/verify), or verify with the instructions given above.` : "\n\nIf you would rather verify with RoVer, you can do so [here](https://rover.link/verify) and run this command again."))
+									+(probableUser.robloxId ? `\n\nYou seem to have linked **[${probableUser.cachedUsername}](https://www.roblox.com/users/${probableUser.robloxId})** with RoVer. You can use this account by clicking the button below. If it isn't correct, you can change it [here](https://rover.link/verify), or verify with the instructions given above.` : "\n\nIf you would rather verify with RoVer, you can do so [here](https://rover.link/verify) and run this command again."))
 				],
 				ephemeral: true,
 			}

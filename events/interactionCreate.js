@@ -1,6 +1,6 @@
 const { Events, ModalBuilder, EmbedBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle } = require('discord.js');
 const {info, success, fail, staffhubkey, externalkey, botkey} = require("../config.json");
-const { Ban } = require('../handlers/database');
+const { Ban, User } = require('../handlers/database');
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -226,10 +226,47 @@ module.exports = {
 					);
 				})
 			} else if (args[0] == "roverVerification") {
+				var result = await User.findOne({'roblox.id': args[1]});
+
+				if (!result) {
+					const username = await (await fetch("https://users.roblox.com/v1/users/"+args[1])).json();
+					const sys = await System.findOne();
+
+					result = User.create({
+						roblox: {
+							id: args[1],
+							name: username.name,
+							nick: username.displayName
+						},
+						userId: sys.userCounter,
+						skyrbux: 0,
+						flightsAttended: 0,
+						discord: {
+							id: interaction.user.id,
+							name: interaction.user.username,
+							streak: 0,
+							lastStreak: 0
+						}
+					});
+
+					sys.userCounter += 1;
+					await sys.save();
+				} else {
+					result.discord = {
+						id: interaction.user.id,
+						name: interaction.user.username,
+						streak: 0,
+						lastStreak: 0
+					};
+					await result.save();
+				}
+
+				var result = await User.findOne({'roblox.id': args[1]});
+
 				interaction.reply({embeds: [
 					new EmbedBuilder()
 						.setColor("#2b2d31")
-						.setDescription(info+` This feature isn't available yet, check back later`)
+						.setDescription(success+` Verified **${result.roblox.name}** with RoVer successfully`)
 				],
 				ephemeral: true});
 			}
