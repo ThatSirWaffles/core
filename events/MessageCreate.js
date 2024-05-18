@@ -160,19 +160,36 @@ module.exports = {
 			} else if (message.guild.id == mainguildid && message.channel.id == "891383611545251843") {
 				const profile = await User.findOne({'discord.id': message.author.id});
 
-				if (profile && profile.discord && ((Date.now() - profile.discord.lastStreak*1000) >= 12 * 60 * 60 * 1000 || !profile.discord.lastStreak || !profile.discord.streak)) {
-					message.reply({
-						embeds: [
-							new EmbedBuilder()
-							.setDescription(`:tada: Thank you for returning today! **You now have a ${profile.discord.streak+1} day streak.**`)
-						],
-						allowedMentions: {repliedUser: false}
-					})
+				if (profile && profile.discord) {
+					if ((Date.now() - profile.discord.lastStreak*1000) >= 48 * 60 * 60 * 1000 || !profile.discord.lastStreak || !profile.discord.streak) {
+						message.reply({
+							embeds: [
+								new EmbedBuilder()
+								.setColor("#2b2d31")
+								.setDescription(`:tada: Thank you for returning today! **You now have a 1 day streak.**`)
+							],
+							allowedMentions: {repliedUser: false}
+						})
 
-					profile.discord.streak += 1;
-					profile.discord.lastStreak = Math.round(Date.now()/1000)
+						profile.discord.streak = 1;
+						profile.discord.lastStreak = Math.round(Date.now()/1000)
 
-					profile.save();
+						profile.save();
+					} else if ((Date.now() - profile.discord.lastStreak*1000) >= 12 * 60 * 60 * 1000 || !profile.discord.lastStreak || !profile.discord.streak) {
+						message.reply({
+							embeds: [
+								new EmbedBuilder()
+								.setColor("#2b2d31")
+								.setDescription(`:tada: Thank you for returning today! **You now have a ${profile.discord.streak+1} day streak.**`)
+							],
+							allowedMentions: {repliedUser: false}
+						})
+
+						profile.discord.streak += 1;
+						profile.discord.lastStreak = Math.round(Date.now()/1000)
+
+						profile.save();
+					}
 				}
 			}
 		}

@@ -1,6 +1,7 @@
 const { Events, ModalBuilder, EmbedBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle } = require('discord.js');
 const {info, success, fail, staffhubkey, externalkey, botkey} = require("../config.json");
-const { Ban, User } = require('../handlers/database');
+const { Ban, User, System } = require('../handlers/database');
+const { updateRoles } = require('../commands/public/verify');
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -262,6 +263,8 @@ module.exports = {
 				}
 
 				var result = await User.findOne({'roblox.id': args[1]});
+
+				updateRoles(result, interaction.member)
 
 				interaction.reply({embeds: [
 					new EmbedBuilder()
