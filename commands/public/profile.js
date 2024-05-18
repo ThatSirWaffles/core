@@ -28,7 +28,7 @@ module.exports = {
 			.setDescription(
 `- **Skyrden ID:** ${profile.userId}
 - **Skyrbux:** ${profile.skyrbux}
-- **Attended:** ${pluralize("flight", profile.flightsAttended, true)}${profile.discord ? "\n- **Streak:** "+pluralize("day", profile.discord.streak, true) : ""}`
+- **Attended:** ${pluralize("flight", profile.flightsAttended, true)}${profile.discord ? `\n- **Streak:** ${pluralize("day", profile.discord.streak, true)}\n- **Next streak:** <t:${profile.discord.lastStreak + 12*60*60}:R>` : ""}`
 			)
 
 			var cards = await (await fetch(`https://api.skyrden.com/users/cards/`+profile.roblox.id)).json()
