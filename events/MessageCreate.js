@@ -19,7 +19,8 @@ module.exports = {
 								.setAuthor({name: `${message.author.globalName} (@${message.author.username})`, iconURL: message.author.avatarURL()})
 								.setTimestamp()
 							],
-							files: Array.from(message.attachments.values())
+							files: Array.from(message.attachments.values()),
+							... (result.subscribed.length > 0 && {content: result.subscribed.map(value => `<@${value}>`).join(' ')})
 						})
 						.then(() => message.react("✅"))
 						.catch(error => {
@@ -87,7 +88,8 @@ module.exports = {
 								created: Date.now(),
 								channel: c.id,
 								author: message.author.id,
-								department: collected.values[0]
+								department: collected.values[0],
+								subscribed: []
 							});
 
 							response.edit({

@@ -7,7 +7,8 @@ const Ticket = mongoose.model("Ticket", new Schema({
 		created: Number,
 		channel: String,
 		author: String,
-		department: String
+		department: String,
+		subscribed: Array
 	}, { collection: 'tickets' })
 );
 
@@ -38,7 +39,8 @@ const User = mongoose.model("User", new Schema({
 );
 
 const System = mongoose.model("System", new Schema({
-	userCounter: Number
+	userCounter: Number,
+	botStatus: String
 }, { collection: 'system' })
 );
 
