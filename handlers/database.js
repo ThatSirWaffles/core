@@ -21,8 +21,8 @@ const Ban = mongoose.model("Ban", new Schema({
 
 const User = mongoose.model("User", new Schema({
 	userId: Number,
-	skyrbux: Number,
-	flightsAttended: Number,
+	skyrmont: Number,
+	flights: Array,
 	roblox: {
 		id: String,
 		name: String,

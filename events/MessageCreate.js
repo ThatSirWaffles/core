@@ -162,7 +162,7 @@ module.exports = {
 
 				if (profile && profile.discord) {
 					if ((Date.now() - profile.discord.lastStreak*1000) >= 48 * 60 * 60 * 1000 || !profile.discord.lastStreak || !profile.discord.streak) {
-						message.reply({
+						const msg = await message.reply({
 							embeds: [
 								new EmbedBuilder()
 								.setColor("#2b2d31")
@@ -175,8 +175,12 @@ module.exports = {
 						profile.discord.lastStreak = Math.round(Date.now()/1000)
 
 						profile.save();
+
+						setTimeout(() => {
+							msg.delete()
+						}, 10000)
 					} else if ((Date.now() - profile.discord.lastStreak*1000) >= 12 * 60 * 60 * 1000 || !profile.discord.lastStreak || !profile.discord.streak) {
-						message.reply({
+						const msg = await message.reply({
 							embeds: [
 								new EmbedBuilder()
 								.setColor("#2b2d31")
@@ -189,6 +193,10 @@ module.exports = {
 						profile.discord.lastStreak = Math.round(Date.now()/1000)
 
 						profile.save();
+
+						setTimeout(() => {
+							msg.delete()
+						}, 10000)
 					}
 				}
 			}

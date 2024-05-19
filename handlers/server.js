@@ -436,8 +436,8 @@ server.get('/checkcode/:userid/:code', async (req, res) => {
 					nick: username.displayName
 				},
 				userId: sys.userCounter,
-				skyrbux: 0,
-				flightsAttended: 0,
+				skyrmont: 0,
+				flights: [],
 				discord: {
 					id: obj.userid,
 					name: obj.username,
@@ -500,8 +500,8 @@ server.post('/users/init/:userid', async (req, res) => {
 						nick: username.displayName
 					},
 					userId: sys.userCounter,
-					skyrbux: 0,
-					flightsAttended: 0,
+					skyrmont: 0,
+					flights: [],
 				});
 
 				sys.userCounter += 1;

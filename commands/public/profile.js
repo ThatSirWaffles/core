@@ -25,11 +25,15 @@ module.exports = {
 			.setColor("#2b2d31")
 			.setTitle(profile.roblox.nick == profile.roblox.name ? profile.roblox.name : `${profile.roblox.nick} (@${profile.roblox.name})`)
 			.setURL("https://www.roblox.com/users/"+profile.roblox.id)
-			.setDescription(
-`- **Skyrden ID:** ${profile.userId}
-- **Skyrbux:** ${profile.skyrbux}
-- **Attended:** ${pluralize("flight", profile.flightsAttended, true)}${profile.discord ? `\n- **Streak:** ${pluralize("day", profile.discord.streak, true)}\n- **Next streak:** <t:${profile.discord.lastStreak + 12*60*60}:R>` : ""}`
-			)
+			.setDescription(`\`ID ${profile.userId}\` **•** \`ø ${(profile.skyrmont).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")}\``)
+
+			if (profile.discord && profile.discord.streak) {	
+				embed.addFields({name: "Streak", value: `**${pluralize("day", profile.discord.streak, true)}**, next available <t:${profile.discord.lastStreak + 12*60*60}:R>`})
+			}
+
+			if (profile.flights.length) {	
+				embed.addFields({name: `Flights (${profile.flights.length})`, value: profile.flights.slice(-3).map(value => `- ${value.name}`).join('\n')+(profile.flights.length > 3 ? `\n*${profile.flights.length-3} more...*` : ""), inline: true})
+			}
 
 			var cards = await (await fetch(`https://api.skyrden.com/users/cards/`+profile.roblox.id)).json()
 			if (cards.length) {	

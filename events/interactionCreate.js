@@ -240,8 +240,8 @@ module.exports = {
 							nick: username.displayName
 						},
 						userId: sys.userCounter,
-						skyrbux: 0,
-						flightsAttended: 0,
+						skyrmont: 0,
+						flights: [],
 						discord: {
 							id: interaction.user.id,
 							name: interaction.user.username,
