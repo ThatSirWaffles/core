@@ -31,7 +31,6 @@ module.exports = {
 				{ $sort: { count: -1 }},
 				{ $limit: 10 }
 			  ]);
-			console.log(docs)
 		} else {
 			docs = await User.find({}).sort({[val]: -1}).limit(10);
 		}

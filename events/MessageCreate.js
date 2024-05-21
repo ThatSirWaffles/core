@@ -159,46 +159,55 @@ module.exports = {
 				} else {
 					message.channel.delete();
 				}
-			} else if (message.guild.id == mainguildid && message.channel.id == "891383611545251843") {
-				const profile = await User.findOne({'discord.id': message.author.id});
+			} else if (message.guild.id == mainguildid) {
+				if (message.channel.id == "891383611545251843") {
+					const profile = await User.findOne({'discord.id': message.author.id});
 
-				if (profile && profile.discord) {
-					if ((Date.now() - profile.discord.lastStreak*1000) >= 48 * 60 * 60 * 1000 || !profile.discord.lastStreak || !profile.discord.streak) {
-						const msg = await message.reply({
-							embeds: [
-								new EmbedBuilder()
-								.setColor("#2b2d31")
-								.setDescription(profile.discord.streak == 0 ? ":tada: And so the journey starts! **This marks the first day of your streak.**" : ":pensive: You lost your streak... **You're back on one day.**")
-							],
-							allowedMentions: {repliedUser: false}
-						})
+					if (profile && profile.discord) {
+						if ((Date.now() - profile.discord.lastStreak*1000) >= 48 * 60 * 60 * 1000 || !profile.discord.lastStreak || !profile.discord.streak) {
+							const msg = await message.reply({
+								embeds: [
+									new EmbedBuilder()
+									.setColor("#2b2d31")
+									.setDescription(profile.discord.streak == 0 ? ":tada: And so the journey starts! **This marks the first day of your streak.**" : ":pensive: You lost your streak... **You're back on one day.**")
+								],
+								allowedMentions: {repliedUser: false}
+							})
 
-						profile.discord.streak = 1;
-						profile.discord.lastStreak = Math.round(Date.now()/1000)
+							profile.discord.streak = 1;
+							profile.discord.lastStreak = Math.round(Date.now()/1000)
 
-						profile.save();
+							profile.save();
 
-						setTimeout(() => {
-							msg.delete()
-						}, 10000)
-					} else if ((Date.now() - profile.discord.lastStreak*1000) >= 12 * 60 * 60 * 1000 || !profile.discord.lastStreak || !profile.discord.streak) {
-						const msg = await message.reply({
-							embeds: [
-								new EmbedBuilder()
-								.setColor("#2b2d31")
-								.setDescription(`:tada: Thank you for returning today! **You now have a ${profile.discord.streak+1} day streak.**`)
-							],
-							allowedMentions: {repliedUser: false}
-						})
+							setTimeout(() => {
+								msg.delete()
+							}, 10000)
+						} else if ((Date.now() - profile.discord.lastStreak*1000) >= 12 * 60 * 60 * 1000 || !profile.discord.lastStreak || !profile.discord.streak) {
+							const msg = await message.reply({
+								embeds: [
+									new EmbedBuilder()
+									.setColor("#2b2d31")
+									.setDescription(`:tada: Thank you for returning today! **You now have a ${profile.discord.streak+1} day streak.**`)
+								],
+								allowedMentions: {repliedUser: false}
+							})
 
-						profile.discord.streak += 1;
-						profile.discord.lastStreak = Math.round(Date.now()/1000)
+							profile.discord.streak += 1;
+							profile.discord.lastStreak = Math.round(Date.now()/1000)
 
-						profile.save();
+							profile.save();
 
-						setTimeout(() => {
-							msg.delete()
-						}, 10000)
+							setTimeout(() => {
+								msg.delete()
+							}, 10000)
+						}
+					}
+				}
+
+				if (message.content.startsWith(".")) {
+					const command = message.content.slice(1).toLowerCase();
+					if (command == "steak") {
+						message.reply({content: "https://www.mychicagosteak.com/steak-university/wp-content/uploads/2016/05/Degrees-of-Doneness-new.png", allowedMentions: {repliedUser: false}});
 					}
 				}
 			}
