@@ -43,7 +43,7 @@ module.exports = {
 			embed.setDescription(docs.map(value => `<@${value.discord.id}> with **${pluralize("day", value.discord.streak, true)}**`).join('\n'))
 		} else if (val == "skyrmont") {
 			embed.setTitle("Skyrmont Leaderboard")
-			embed.setDescription(docs.map(value => `<@${value.discord.id}> with **ø ${value.skyrmont}**`).join('\n'))
+			embed.setDescription(docs.map(value => `<@${value.discord.id}> with **${value.skyrmont} sm.**`).join('\n'))
 		} else if (val == "flights") {
 			embed.setTitle("Flight Leaderboard")
 			embed.setDescription(docs.map(value => `<@${value.document.discord.id}> with **${pluralize("flight", value.document.flights.length, true)}**`).join('\n'))

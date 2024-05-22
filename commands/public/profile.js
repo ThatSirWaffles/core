@@ -25,7 +25,7 @@ module.exports = {
 			.setColor("#2b2d31")
 			.setTitle(profile.roblox.nick == profile.roblox.name ? profile.roblox.name : `${profile.roblox.nick} (@${profile.roblox.name})`)
 			.setURL("https://www.roblox.com/users/"+profile.roblox.id)
-			.setDescription(`\`ID ${profile.userId}\` **•** \`ø ${(profile.skyrmont).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")}\``)
+			.setDescription(`\`ID ${profile.userId}\` **•** \`${(profile.skyrmont).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} sm.\``)
 
 			if (profile.discord && profile.discord.streak) {	
 				embed.addFields({name: "Streak", value: `**${pluralize("day", profile.discord.streak, true)}**, next available <t:${profile.discord.lastStreak + 12*60*60}:R>`})
