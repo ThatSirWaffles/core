@@ -263,7 +263,7 @@ server.post('/updateflightform/:flightid', async (req, res) => {
 	const {flightid} = req.params;
 	const {token} = req.body;
 
-	if (token == externalkey) {
+	if (token == externalkey) {;
 		const response = await fetch("https://staff.skyrden.com/api/v1/flights/"+flightid);
 
 		if (response.status == 200) {
@@ -271,7 +271,7 @@ server.post('/updateflightform/:flightid', async (req, res) => {
 			const selectedflight = data.data;
 			
 			const forms = await client.channels.cache.get(flightformchannelid).messages.fetch();
-			const found = forms.filter(msg => msg.embeds[0] && msg.embeds[0].data.title.includes(selectedflight.flightNumber));
+			const found = forms.filter(msg => msg.embeds[0] && msg.embeds[0].data.url.split('/').pop() == flightid);
 
 			if (found.size > 0) {
 				const msg = found.values().next().value
