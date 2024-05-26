@@ -4,7 +4,8 @@ const {
 	ButtonBuilder,
 	ButtonStyle,
 	ActionRowBuilder,
-	ActivityType
+	ActivityType,
+	AuditLogEvent
 } = require("discord.js");
 
 const {
@@ -12,6 +13,7 @@ const {
 	success
 } = require("../../config.json");
 const { User } = require("../../handlers/database");
+const { updateRoles } = require("../public/verify");
 
 
 
@@ -21,17 +23,18 @@ module.exports = {
 		.setName("update")
 		.setDescription("Updates a user's roles")
 		.setDefaultMemberPermissions(0)
-		.addStringOption(option =>
-			option.setName("user")
-				.setDescription("The user to update")
-				.setRequired(true)
-			),
+		.addUserOption(option =>option
+			.setName("user")
+			.setDescription("The user to update")
+			.setRequired(true)
+		),
 	async execute(interaction) {
-		const user = interaction.options.getString('user', true);
+		const user = interaction.options.getUser('user');
 		const profile = await User.findOne({'discord.id': user.id});
+		const member = await mainguild.members.fetch(user.id);
 
-		client.user.setActivity(status, {type: ActivityType.Watching});
+		updateRoles(profile, member);
 
-		interaction.reply({content: success+" Updated roles", ephemeral: true})
+		interaction.reply({content: success+" Updated roles", ephemeral: true});
 	},
 };
