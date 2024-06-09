@@ -1,14 +1,21 @@
 const express = require('express');
 const server = express();
 const bodyparser = require('body-parser');
+const noblox = require('noblox.js')
 
 server.use(bodyparser.text());
 server.use(express.json());
 
-const { externalkey, flightformchannelid, staffhubkey, eventannouncements, flightlist, success } = require("../config.json");
+const { externalkey, flightformchannelid, staffhubkey, eventannouncements, flightlist, success, botkey, robloxcookie } = require("../config.json");
 const { EmbedBuilder, GuildScheduledEventPrivacyLevel, GuildScheduledEventEntityType, GuildScheduledEventManager, GuildScheduledEventStatus, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
 const { Ban, User, System } = require('./database');
 const { updateRoles } = require('../commands/public/verify');
+
+noblox.setCookie("_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someone-to-log-in-as-you-and-to-steal-your-ROBUX-and-items.|_57347365AC8516A9E32D487618FD2A1F0837309C0943470416BFFFF94EC1B2B2291EDAD8AF8B2AEC34B719AE188E203516F12A911BFC8D10076A01D7500B024B912BB7983E54073B3ECB1FBB675552D22C8EFAFB1772EAD1F87AD3DA0F84BB9256C92A426F4CAA9EF95F1A288D27AF38228F02C708CCFEE29E2562B4A48DFD77060ED9E876154735BB523CC20E4B33521BE07F4AEE07EDF88806FCA3129365043039CCC6A595145584CC85CE85DAB69D8C311A4748C1B95FB6790DAEE34D290AB10DDF84D1C05FA34614C3FF1F528D3D8EF746F947286E17041D79BD298477AAED326A11DA9638FE71C4169F87E59A69373EAFBD9CF4F1BFB8EEBCB661EF72412FC89C5C53758C18009146012E2AB33019D5742E0D2F7B07B4AC4431BE5BB7142B7A6CE523062FF53D6138194CDD940D2DEFD93AB473A10BEA43365601AB63B2EA412C6C34F585AEB31AC05A345524935FFABE822693ADA1D88133E6BDEE6C3A43B5B843E7664E0B286E98DEBEDEE54795BCC4BE").then(()=> {
+	console.log("Noblox logged in")
+}).catch((error) => {
+	console.log("Noblox failed", error)
+})
 
 var jobs = []
 
@@ -527,6 +534,73 @@ server.get('/users/search/:param/:value', async (req, res) => {
 		res.status(200).json(result);
 	} else {
 		res.status(404).json({message: 'No user found'});
+	}
+})
+
+server.post('/rank/:target/:rank', async (req, res) => {
+	const {target, rank} = req.params;
+	const {token} = req.body;
+
+	if (token == botkey) { 
+		console.log(`Attempting to rank ${target} to ${rank}`);
+
+		noblox.setRank(12253448, target, parseInt(rank))
+		.then(result => {
+			res.status(200).json({message: 'Ranked successfully', details: result});
+			console.log(`Ranked`);
+		})
+		.catch(e => {
+			res.status(500).json({message: 'Ranking failed', error: `${e}`});
+			console.log(e);
+		})
+	} else {
+		res.status(401).json({message: 'Invalid token'});
+		console.log(`${req.ip} attempted to rank ${target} with an invalid token`);
+	}
+})
+
+server.post('/kick/:target', async (req, res) => {
+	const target = req.params.target
+	const rank = req.params.rank
+	const token = req.body.token
+
+	if (token == botkey) { 
+
+		console.log(`Attempting to kick ${target}`)
+		noblox.exile(12253448, target)
+		.then(result => {
+			res.status(200).json({message: 'Kicked successfully', details: result})
+			console.log(`Kicked`)
+		})
+		.catch(e => {
+			res.status(500).json({message: 'Kick failed', error: `${e}`})
+			console.log(e)
+		})
+	} else {
+		res.status(401).json({message: 'Invalid token'})
+		console.log(`${req.ip} failed miserably`)
+	}
+})
+
+server.post('/shout', async (req, res) => {
+	const {token, content} = req.body
+
+	if (token == botkey) { 
+
+		console.log("Attempting to shout "+ content)
+		try {
+			const result = await noblox.shout(12253448, content)
+			res.status(200).json({message: 'Sent successfully', details: result})
+			console.log(`Sent`)
+		} catch (e) {
+			res.status(500).json({message: 'Shout failed', error: `${e}`})
+			console.log(`Failed`)
+			console.log(e)
+		}
+
+	} else {
+		res.status(401).json({message: 'Invalid token'})
+		console.log(`${req.ip} failed miserably`)
 	}
 })
 

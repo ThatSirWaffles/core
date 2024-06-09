@@ -169,7 +169,7 @@ module.exports = {
 								embeds: [
 									new EmbedBuilder()
 									.setColor("#2b2d31")
-									.setDescription(profile.discord.streak == 0 ? ":tada: And so the journey starts! **This marks the first day of your streak.**" : ":pensive: You lost your streak... **You're back on one day.**")
+									.setDescription(profile.discord.streak == 0 ? ":tada: And so the journey starts! **This marks the first day of your streak.**" : `:pensive: You lost your ${profile.discord.streak} day streak... **You're back on one day.**`)
 								],
 								allowedMentions: {repliedUser: false}
 							})
