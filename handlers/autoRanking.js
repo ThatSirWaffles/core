@@ -12,7 +12,7 @@ async function checkForWFA() {
 			const result = await Ban.findOne({victim: obj.userId});
 
 			if (result) {
-				fetch(`http://localhost:8000/kick/${obj.userId}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: botkey})})
+				fetch(`http://localhost:8010/kick/${obj.userId}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: botkey})})
 				.then(res => {
 					if (!res.ok) {
 						throw new Error(res.statusText)
@@ -25,7 +25,7 @@ async function checkForWFA() {
 					client.channels.cache.get("994709325186600980").send(`**⚠ Failed to kick banned user [${obj.username}](<https://www.roblox.com/users/${obj.userId}/profile>)**\n\n\`\`\`${err}\`\`\``);
 				});
 			} else if (dif >= 31556926000) {
-				fetch(`http://localhost:8000/rank/${obj.userId}/5`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: botkey})})
+				fetch(`http://localhost:8010/rank/${obj.userId}/5`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: botkey})})
 				.then(() =>{
 					client.channels.cache.get("994709325186600980").send(`Auto-ranked [${obj.username}](<https://www.roblox.com/users/${obj.userId}/profile>) to EC (${Math.round(dif / (1000 * 3600 * 24))} days old)`)
 				})
