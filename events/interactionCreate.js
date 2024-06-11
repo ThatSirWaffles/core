@@ -1,5 +1,5 @@
 const { Events, ModalBuilder, EmbedBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle } = require('discord.js');
-const {info, success, fail, staffhubkey, externalkey, coretokens} = require("../config.json");
+const {info, success, fail, staffhubkey, coretokens} = require("../config.json");
 const { Ban, User, System } = require('../handlers/database');
 const { updateRoles } = require('../commands/public/verify');
 
@@ -66,7 +66,7 @@ module.exports = {
 
 						fetch('https://staff.skyrden.com/api/v1/signups/flights', {method: "POST", body: JSON.stringify(body), headers:{"Content-Type": "application/json", Authorization: staffhubkey}})
 						.then(async res => {
-							fetch(`http://localhost:8010/updateflightform/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: externalkey})})
+							fetch(`http://localhost:8010/updateflightform/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: coretokens.local})})
 							.then(() => {
 								modalInteraction.reply({embeds: [
 									new EmbedBuilder()
@@ -104,7 +104,7 @@ module.exports = {
 				if (signups.some(obj => obj.staff.discordId == interaction.user.id)) {
 					fetch('https://staff.skyrden.com/api/v1/signups/flights/'+signups.filter(obj => obj.staff.discordId == interaction.user.id)[0].id, {method: "DELETE", headers:{"Content-Type": "application/json", Authorization: staffhubkey}})
 					.then(async () => {
-						fetch(`http://localhost:8010/updateflightform/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: externalkey})})
+						fetch(`http://localhost:8010/updateflightform/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: coretokens.local})})
 						.then(() => {
 							interaction.followUp({embeds: [
 								new EmbedBuilder()
@@ -135,7 +135,7 @@ module.exports = {
 				}
 			} else if (args[0] == "refreshflight") {
 				interaction.deferReply({ephemeral: true});
-				fetch(`http://localhost:8010/updateflightform/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: externalkey})})
+				fetch(`http://localhost:8010/updateflightform/${args[1]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: coretokens.local})})
 				.then(() => interaction.deleteReply())
 				.catch(err => {
 					interaction.followUp({embeds: [

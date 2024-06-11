@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, EmbedBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder, Embed, ComponentType, GuildScheduledEventPrivacyLevel, GuildScheduledEventManager, GuildScheduledEventEntityType, ButtonBuilder, ButtonStyle } = require('discord.js');
-const {info, success, fail, externalkey} = require("../../config.json")
+const {info, success, fail, coretokens} = require("../../config.json")
 
 module.exports = {
 	category: 'staff',
@@ -63,7 +63,7 @@ module.exports = {
 
 				message.awaitMessageComponent({ filter: collectorFilter, componentType: ComponentType.StringSelect, time: 20000 })
 				.then(async collected => {					  
-					fetch(`http://localhost:8010/createflightform/${collected.values[0]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: externalkey})})
+					fetch(`http://localhost:8010/createflightform/${collected.values[0]}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: coretokens.local})})
 						.then(() => interaction.deleteReply())
 						.catch(error => {
 							interaction.followUp({ content: fail+` Failed, please report the bug to @sirwaffles\`\`\`${error}\`\`\``, ephemeral: true });
