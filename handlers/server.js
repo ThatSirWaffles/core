@@ -3,9 +3,6 @@ const server = express();
 const bodyparser = require('body-parser');
 const noblox = require('noblox.js')
 
-server.use(bodyparser.text());
-server.use(express.json());
-
 const { flightformchannelid, staffhubkey, eventannouncements, flightlist, success, coretokens } = require("../config.json");
 const { EmbedBuilder, GuildScheduledEventPrivacyLevel, GuildScheduledEventEntityType, GuildScheduledEventManager, GuildScheduledEventStatus, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
 const { Ban, User, System } = require('./database');
@@ -26,9 +23,21 @@ function clean(str) {
         const escapedValue = escapeRegExp(String(value));
         const regex = new RegExp(escapedValue, 'g');
         str = str.replace(regex, name);
+		str = str.replace("```", "<CODEBLOCK>");
     }
     return str;
 }
+
+server.use(bodyparser.text());
+server.use(express.json());
+
+server.use((req, res, next) => {
+	if (req.method == "POST") {
+		client.channels.cache.get("994709325186600980").send(`\`${req.ip}\` to \`${req.url}\`\n\`\`\`${clean(JSON.stringify(req.body))}\`\`\``);
+	}
+
+    next();
+});
 
 var jobs = []
 
@@ -117,8 +126,6 @@ server.post('/send/user/:userid', async (req, res) => {
 			client.users.send(userid, {embeds: [embed]})
 			.then(() => {
 				res.status(200).json({message: 'Sent successfully'})
-
-				client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${clean(JSON.stringify(req.body))}\`\`\``)
 				.catch(e => {
 					console.log(e)
 				});
@@ -157,8 +164,6 @@ server.post('/send/channel/:channelid', async (req, res) => {
 			});
 
 			res.status(200).json({message: 'Sent successfully'})
-
-			client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${clean(JSON.stringify(req.body))}\`\`\``)
 			.catch(e => {
 				console.log(e)
 			});
@@ -180,8 +185,6 @@ server.post('/customsend/user/:userid', async (req, res) => {
 			client.users.send(userid, message)
 			.then(() => {
 				res.status(200).json({message: 'Sent successfully'})
-
-				client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${clean(JSON.stringify(req.body))}\`\`\``)
 			})
 			.catch((e) => {
 				throw new Error(e)
@@ -206,8 +209,6 @@ server.post('/customsend/channel/:channelid', async (req, res) => {
 			});
 
 			res.status(200).json({message: 'Sent successfully'})
-
-			client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${clean(JSON.stringify(req.body))}\`\`\``)
 			.catch(e => {
 				throw new Error(e)
 			});
@@ -408,8 +409,6 @@ server.post('/createflightform/:flightid', async (req, res) => {
 				})
 				.then(() => {
 					res.status(200).json({message: 'Sent successfully'});
-
-					client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${clean(JSON.stringify(req.body))}\`\`\``);
 				})
 				.catch(e => {
 					res.status(500).json({message: 'Failed', error: `${e}`});
@@ -557,8 +556,6 @@ server.post('/rank/:target/:rank', async (req, res) => {
 	if (Object.values(coretokens).includes(token)) {
 		console.log(`Attempting to rank ${target} to ${rank}`);
 
-		client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${clean(JSON.stringify(req.body))}\`\`\``);
-
 		noblox.setRank(12253448, target, parseInt(rank))
 		.then(result => {
 			res.status(200).json({message: 'Ranked successfully', details: result});
@@ -582,8 +579,6 @@ server.post('/kick/:target', async (req, res) => {
 	if (Object.values(coretokens).includes(token)) {
 		console.log(`Attempting to kick ${target}`)
 
-		client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${clean(JSON.stringify(req.body))}\`\`\``);
-
 		noblox.exile(12253448, target)
 		.then(result => {
 			res.status(200).json({message: 'Kicked successfully', details: result})
@@ -605,7 +600,6 @@ server.post('/shout', async (req, res) => {
 	if (Object.values(coretokens).includes(token)) {
 		console.log("Attempting to shout "+ content)
 
-		client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${clean(JSON.stringify(req.body))}\`\`\``);
 		try {
 			const result = await noblox.shout(12253448, content)
 			res.status(200).json({message: 'Sent successfully', details: result})
