@@ -6,7 +6,7 @@ const noblox = require('noblox.js')
 server.use(bodyparser.text());
 server.use(express.json());
 
-const { externalkey, flightformchannelid, staffhubkey, eventannouncements, flightlist, success, botkey, robloxcookie } = require("../config.json");
+const { flightformchannelid, staffhubkey, eventannouncements, flightlist, success, coretokens } = require("../config.json");
 const { EmbedBuilder, GuildScheduledEventPrivacyLevel, GuildScheduledEventEntityType, GuildScheduledEventManager, GuildScheduledEventStatus, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
 const { Ban, User, System } = require('./database');
 const { updateRoles } = require('../commands/public/verify');
@@ -17,6 +17,19 @@ noblox.setCookie("_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someone
 	console.log("Noblox failed", error)
 })
 
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
+
+function clean(str) {
+    for (const [name, value] of Object.entries(coretokens)) {
+        const escapedValue = escapeRegExp(String(value));
+        const regex = new RegExp(escapedValue, 'g');
+        str = str.replace(regex, name);
+    }
+    return str;
+}
+
 var jobs = []
 
 server.get('/bulkjobs/', async (req, res) => {
@@ -24,7 +37,7 @@ server.get('/bulkjobs/', async (req, res) => {
 
 	jobs = [];
 
-	if (token == externalkey) {
+	if (Object.values(coretokens).includes(token)) {
 		res.status(200).json({jobs: jobs})
 	} else {
 		res.status(401).json({message: 'Invalid token'})
@@ -34,7 +47,7 @@ server.get('/bulkjobs/', async (req, res) => {
 server.post('/send/bulkusers/', async (req, res) => {
 	const {token, bulk} = req.body
 
-	if (token == externalkey) {
+	if (Object.values(coretokens).includes(token)) {
 		try {
 			if (jobs.length == 0) {
 				jobs = [{task: "DM", iteration: 0, total: bulk.length}];
@@ -87,7 +100,7 @@ server.post('/send/user/:userid', async (req, res) => {
 	const {userid} = req.params
 	const {token, content, title, footer} = req.body
 
-	if (token == externalkey) {
+	if (Object.values(coretokens).includes(token)) {
 		try {
 			const embed = new EmbedBuilder()
 			.setColor("#2b2d31")
@@ -105,7 +118,7 @@ server.post('/send/user/:userid', async (req, res) => {
 			.then(() => {
 				res.status(200).json({message: 'Sent successfully'})
 
-				client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${JSON.stringify(req.body).replace(externalkey, "##REDACTED##")}\`\`\``)
+				client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${clean(JSON.stringify(req.body))}\`\`\``)
 				.catch(e => {
 					console.log(e)
 				});
@@ -125,7 +138,7 @@ server.post('/send/channel/:channelid', async (req, res) => {
 	const {channelid} = req.params
 	const {token, content, title, footer} = req.body
 
-	if (token == externalkey) {
+	if (Object.values(coretokens).includes(token)) {
 		try {
 			const embed = new EmbedBuilder()
 			.setColor("#2b2d31")
@@ -145,7 +158,7 @@ server.post('/send/channel/:channelid', async (req, res) => {
 
 			res.status(200).json({message: 'Sent successfully'})
 
-			client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${JSON.stringify(req.body).replace(externalkey, "##REDACTED##")}\`\`\``)
+			client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${clean(JSON.stringify(req.body))}\`\`\``)
 			.catch(e => {
 				console.log(e)
 			});
@@ -162,13 +175,13 @@ server.post('/customsend/user/:userid', async (req, res) => {
 	const {userid} = req.params
 	const {token, message} = req.body
 
-	if (token == externalkey) {
+	if (Object.values(coretokens).includes(token)) {
 		try {
 			client.users.send(userid, message)
 			.then(() => {
 				res.status(200).json({message: 'Sent successfully'})
 
-				client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${JSON.stringify(req.body).replace(externalkey, "##REDACTED##")}\`\`\``)
+				client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${clean(JSON.stringify(req.body))}\`\`\``)
 			})
 			.catch((e) => {
 				throw new Error(e)
@@ -185,7 +198,7 @@ server.post('/customsend/channel/:channelid', async (req, res) => {
 	const {channelid} = req.params
 	const {token, message} = req.body
 
-	if (token == externalkey) {
+	if (Object.values(coretokens).includes(token)) {
 		try {
 			client.channels.cache.get(channelid).send(message)
 			.catch(e => {
@@ -194,7 +207,7 @@ server.post('/customsend/channel/:channelid', async (req, res) => {
 
 			res.status(200).json({message: 'Sent successfully'})
 
-			client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${JSON.stringify(req.body).replace(externalkey, "##REDACTED##")}\`\`\``)
+			client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${clean(JSON.stringify(req.body))}\`\`\``)
 			.catch(e => {
 				throw new Error(e)
 			});
@@ -211,7 +224,7 @@ server.post('/createevent/:flightid', async (req, res) => {
 	const {flightid} = req.params
 	const {token} = req.body
 
-	if (token == externalkey) { 
+	if (Object.values(coretokens).includes(token)) {
 		const response = await fetch("https://staff.skyrden.com/api/v1/flights/"+flightid);
 		const data = await response.json();
 		const flight = data.data;
@@ -270,7 +283,7 @@ server.post('/updateflightform/:flightid', async (req, res) => {
 	const {flightid} = req.params;
 	const {token} = req.body;
 
-	if (token == externalkey) {;
+	if (Object.values(coretokens).includes(token)) {
 		const response = await fetch("https://staff.skyrden.com/api/v1/flights/"+flightid);
 
 		if (response.status == 200) {
@@ -331,7 +344,7 @@ server.post('/createflightform/:flightid', async (req, res) => {
 	const {flightid} = req.params;
 	const {token} = req.body;
 
-	if (token == externalkey) {
+	if (Object.values(coretokens).includes(token)) {
 		const response = await fetch("https://staff.skyrden.com/api/v1/flights/"+flightid);
 
 		if (response.status == 200) {
@@ -396,7 +409,7 @@ server.post('/createflightform/:flightid', async (req, res) => {
 				.then(() => {
 					res.status(200).json({message: 'Sent successfully'});
 
-					client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${JSON.stringify(req.body).replace(externalkey, "##REDACTED##")}\`\`\``)
+					client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${clean(JSON.stringify(req.body))}\`\`\``);
 				})
 				.catch(e => {
 					res.status(500).json({message: 'Failed', error: `${e}`});
@@ -490,7 +503,7 @@ server.post('/users/init/:userid', async (req, res) => {
 	const {userid} = req.params;
 	const {token} = req.body
 
-	if (token == externalkey) {
+	if (Object.values(coretokens).includes(token)) {
 		try {
 			const result = await User.findOne({'roblox.id': userid});
 
@@ -541,13 +554,15 @@ server.post('/rank/:target/:rank', async (req, res) => {
 	const {target, rank} = req.params;
 	const {token} = req.body;
 
-	if (token == botkey) { 
+	if (Object.values(coretokens).includes(token)) {
 		console.log(`Attempting to rank ${target} to ${rank}`);
+
+		client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${clean(JSON.stringify(req.body))}\`\`\``);
 
 		noblox.setRank(12253448, target, parseInt(rank))
 		.then(result => {
 			res.status(200).json({message: 'Ranked successfully', details: result});
-			console.log(`Ranked`);
+			console.log("Ranked")
 		})
 		.catch(e => {
 			res.status(500).json({message: 'Ranking failed', error: `${e}`});
@@ -564,13 +579,15 @@ server.post('/kick/:target', async (req, res) => {
 	const rank = req.params.rank
 	const token = req.body.token
 
-	if (token == botkey) { 
-
+	if (Object.values(coretokens).includes(token)) {
 		console.log(`Attempting to kick ${target}`)
+
+		client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${clean(JSON.stringify(req.body))}\`\`\``);
+
 		noblox.exile(12253448, target)
 		.then(result => {
 			res.status(200).json({message: 'Kicked successfully', details: result})
-			console.log(`Kicked`)
+			console.log("Kicked")
 		})
 		.catch(e => {
 			res.status(500).json({message: 'Kick failed', error: `${e}`})
@@ -585,16 +602,16 @@ server.post('/kick/:target', async (req, res) => {
 server.post('/shout', async (req, res) => {
 	const {token, content} = req.body
 
-	if (token == botkey) { 
-
+	if (Object.values(coretokens).includes(token)) {
 		console.log("Attempting to shout "+ content)
+
+		client.channels.cache.get("994709325186600980").send(`\`\`\`${JSON.stringify(req.ip)}\n${JSON.stringify(req.url)}\n${clean(JSON.stringify(req.body))}\`\`\``);
 		try {
 			const result = await noblox.shout(12253448, content)
 			res.status(200).json({message: 'Sent successfully', details: result})
-			console.log(`Sent`)
+			console.log("Shouted")
 		} catch (e) {
 			res.status(500).json({message: 'Shout failed', error: `${e}`})
-			console.log(`Failed`)
 			console.log(e)
 		}
 
