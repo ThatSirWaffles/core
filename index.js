@@ -78,5 +78,6 @@ process.on
     function (err)
     {
         console.log(err)
+		client.channels.cache.get("994709325186600980").send(`\`\`\`${err.toString()}\`\`\``);
     }
 );

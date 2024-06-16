@@ -3,15 +3,15 @@ const server = express();
 const bodyparser = require('body-parser');
 const noblox = require('noblox.js')
 
-const { flightformchannelid, staffhubkey, eventannouncements, flightlist, success, coretokens } = require("../config.json");
+const { flightformchannelid, staffhubkey, eventannouncements, flightlist, success, coretokens, thumbnails } = require("../config.json");
 const { EmbedBuilder, GuildScheduledEventPrivacyLevel, GuildScheduledEventEntityType, GuildScheduledEventManager, GuildScheduledEventStatus, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
 const { Ban, User, System } = require('./database');
 const { updateRoles } = require('../commands/public/verify');
 
 noblox.setCookie("_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someone-to-log-in-as-you-and-to-steal-your-ROBUX-and-items.|_57347365AC8516A9E32D487618FD2A1F0837309C0943470416BFFFF94EC1B2B2291EDAD8AF8B2AEC34B719AE188E203516F12A911BFC8D10076A01D7500B024B912BB7983E54073B3ECB1FBB675552D22C8EFAFB1772EAD1F87AD3DA0F84BB9256C92A426F4CAA9EF95F1A288D27AF38228F02C708CCFEE29E2562B4A48DFD77060ED9E876154735BB523CC20E4B33521BE07F4AEE07EDF88806FCA3129365043039CCC6A595145584CC85CE85DAB69D8C311A4748C1B95FB6790DAEE34D290AB10DDF84D1C05FA34614C3FF1F528D3D8EF746F947286E17041D79BD298477AAED326A11DA9638FE71C4169F87E59A69373EAFBD9CF4F1BFB8EEBCB661EF72412FC89C5C53758C18009146012E2AB33019D5742E0D2F7B07B4AC4431BE5BB7142B7A6CE523062FF53D6138194CDD940D2DEFD93AB473A10BEA43365601AB63B2EA412C6C34F585AEB31AC05A345524935FFABE822693ADA1D88133E6BDEE6C3A43B5B843E7664E0B286E98DEBEDEE54795BCC4BE").then(()=> {
-	console.log("Noblox logged in")
+	console.log('NOBLOX >>		READY');
 }).catch((error) => {
-	console.log("Noblox failed", error)
+	console.log('NOBLOX >>		ERROR', error);
 })
 
 function escapeRegExp(string) {
@@ -615,10 +615,154 @@ server.post('/shout', async (req, res) => {
 	}
 })
 
+server.post('/signal/:type', async (req, res) => {
+	const {type} = req.params;
+	const {token, flight, players} = req.body;
+	if (Object.values(coretokens).includes(token)) {
+		console.log("received "+type);
+
+		if (type == "open") {
+			const anns = await client.channels.cache.get(eventannouncements).messages.fetch();
+			const found = anns.filter(msg => msg.embeds[0] && msg.embeds[0].data.title == flight.flightNumber);
+
+			if (found.size == 0) {
+				if (anns.filter(msg => msg.embeds[0] && msg.embeds[0].data.title.includes(flight.flightNumber)).size == 0) {
+					var classemojis = ""
+	
+					if (flight.aircraft.modelId != null) {
+						if (flight.aircraft.premiumPlus != 0) {
+							classemojis += " <:skrprp:1059119094789582943>"
+						}
+						if (flight.aircraft.premium != 0) {
+							classemojis += " <:skrpr:1202940106084847647>"
+						}
+						if (flight.aircraft.economyPlus != 0) {
+							classemojis += " <:skrecp:1059119096899313674>"
+						}
+						if (flight.aircraft.economy != 0) {
+							classemojis += " <:skrec:1059119098405072938>"
+						}
+					}
+	
+					const joinFlight = new ButtonBuilder()
+						.setURL("https://skyrden.com/"+flight.airport.name.toLowerCase())
+						.setLabel("Join Flight")
+						.setStyle(ButtonStyle.Link)
+					
+					var embed = new EmbedBuilder()
+					.setColor("#2b2d31")
+					.setTitle(flight.flightNumber)
+					.setURL("https://skyrden.com/"+flight.airport.name.toLowerCase())
+					.setDescription(`This flight is now **open** in **[${flight.airport.name}](<https://skyrden.com/${flight.airport.name.toLowerCase()}>)** for all passengers to **${flight.airport.destination}**\n\n- Upon joining, use the **self check-in**, then the **baggage drop**\n- If you need help, ask a member of staff`)
+					.addFields({name: "Flight Info", value: `<:aircraft:1203078640871677982> \`${flight.aircraft.name}\`${classemojis}\n\n<:gate:1203078645619621919> \`${flight.airport.gate}\`\n<:origin:1203078648912150558> \`${flight.airport.name}\`\n<:destination:1203078644319133767> \`${flight.airport.destination}\``})
+					.setTimestamp(new Date(Date.now() + 600000))
+					.setFooter({text: "Locking in 10 minutes"})
+					
+					if (thumbnails[flight.airport.name.toLowerCase()]) {
+						embed.setImage(thumbnails[flight.airport.name.toLowerCase()]);
+					}
+
+					client.channels.cache.get(eventannouncements).send({
+						content: "`@everyone`",
+						embeds: [embed],
+						components: [
+							new ActionRowBuilder().addComponents(joinFlight)
+						]
+					})
+					.then(() => {
+						res.status(200).json({message: 'Sent successfully'});
+					})
+					.catch(e => {
+						res.status(500).json({message: 'Failed', error: `${e}`});
+					})
+				} else {
+					res.status(500).json({message: 'Failed', error: "Flight already announced"});
+				}
+			}
+		} else if (type == "lock") {
+			const anns = await client.channels.cache.get(eventannouncements).messages.fetch();
+			const found = anns.filter(msg => msg.embeds[0] && msg.embeds[0].data.title == flight.flightNumber);
+
+			if (found.size > 0) {
+				const msg = found.values().next().value
+				const joinFlight = new ButtonBuilder()
+					.setURL("https://skyrden.com/"+flight.airport.name.toLowerCase())
+					.setLabel("Join Flight")
+					.setStyle(ButtonStyle.Link)
+					.setDisabled(true)
+				
+				var embed = new EmbedBuilder()
+				.setColor("#2b2d31")
+				.setTitle(flight.flightNumber)
+				.setDescription(`This flight is now **locked**, and passengers may no longer join`)
+				.addFields(msg.embeds[0].data.fields)
+				.setTimestamp(new Date(Date.now()))
+				.setFooter({text: "Locked"})
+				
+				if (thumbnails[flight.airport.name.toLowerCase()]) {
+					embed.setImage(thumbnails[flight.airport.name.toLowerCase()]);
+				}
+
+				msg.edit({
+					content: "`@everyone`",
+					embeds: [embed],
+					components: [
+						new ActionRowBuilder().addComponents(joinFlight)
+					]
+				})
+				.then(() => {
+					res.status(200).json({message: 'Sent successfully'});
+				})
+				.catch(e => {
+					res.status(500).json({message: 'Failed', error: `${e}`});
+				})
+			} else {
+				res.status(500).json({message: 'Failed', error: "Flight was never opened"});
+			}
+		} else if (type == "end") {
+			const anns = await client.channels.cache.get(eventannouncements).messages.fetch();
+			const found = anns.filter(msg => msg.embeds[0] && msg.embeds[0].data.title == flight.flightNumber);
+
+			if (found.size > 0) {
+				const msg = found.values().next().value
+				msg.delete();
+
+				for (i of players) {
+					var result = await User.findOne({'roblox.id': i});
+
+					if (result) {
+						result.skyrmont += 5;
+						result.flights.push({id: flight.id, name: flight.flightNumber});
+
+						result.save();
+
+						if (result.discord) {
+							setTimeout(() => {
+								client.users.send(result.discord.id, {
+									embeds: [
+										new EmbedBuilder()
+											.setColor("#2b2d31")
+											.setDescription(`:tada: Thank you for joining **${flight.flightNumber}**! You've been given \`5 sm.\`, and the flight has been logged to your profile. Use \`/profile\` in <#891384296319909908> to check your stats.`)
+									]
+								});
+							}, i * 500);
+						}
+					}
+				}
+			}
+		} else {
+			res.status(404).json({message: 'Unknown signal type'});
+		}
+	} else {
+		res.status(401).json({message: 'Invalid token'});
+		console.log(`${req.ip} failed miserably`);
+	}
+})
+
 server.all('/', async (req, res) => {
 	res.send("Skyrden Core")
 })
 
 server.listen(8010, () => {
-	console.log('[Skyrden Core] - Server is ready.')
+	console.log('WEBSERVER >>		READY');
 })

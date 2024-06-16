@@ -7,7 +7,7 @@ module.exports = {
 	async execute(client) {
 		const sys = await System.findOne();
 
-		console.log(`Logged in as ${client.user.tag}!`);
+		console.log('BOT >>			READY');
 		client.user.setStatus('dnd');
 		client.user.setActivity(sys.botStatus, {type: ActivityType.Watching});
 	},
