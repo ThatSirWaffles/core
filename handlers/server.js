@@ -745,7 +745,7 @@ server.post('/signal/:type', async (req, res) => {
 											.setDescription(`:tada: Thank you for joining **${flight.flightNumber}**! You've been given \`5 sm.\`, and the flight has been logged to your profile. Use \`/profile\` in <#891384296319909908> to check your stats.`)
 									]
 								});
-							}, i * 500);
+							}, 500);
 						}
 					}
 				}
