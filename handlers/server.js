@@ -663,7 +663,7 @@ server.post('/signal/:type', async (req, res) => {
 					}
 
 					client.channels.cache.get(eventannouncements).send({
-						content: "`@everyone`",
+						content: "@everyone",
 						embeds: [embed],
 						components: [
 							new ActionRowBuilder().addComponents(joinFlight)
@@ -704,7 +704,7 @@ server.post('/signal/:type', async (req, res) => {
 				}
 
 				msg.edit({
-					content: "`@everyone`",
+					content: "@everyone",
 					embeds: [embed],
 					components: [
 						new ActionRowBuilder().addComponents(joinFlight)
@@ -736,7 +736,7 @@ server.post('/signal/:type', async (req, res) => {
 
 						result.save();
 
-						if (result.discord) {
+						if (result.discord && result.discord.id) {
 							setTimeout(() => {
 								client.users.send(result.discord.id, {
 									embeds: [
