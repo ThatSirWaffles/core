@@ -15,7 +15,7 @@ const { System } = require("../../handlers/database");
 
 
 module.exports = {
-	category: 'dev',
+	category: 'admin',
 	data: data = new SlashCommandBuilder()
 		.setName("status")
 		.setDescription("Updates the bot's status")

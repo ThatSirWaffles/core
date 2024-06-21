@@ -18,7 +18,7 @@ const { updateRoles } = require("../public/verify");
 
 
 module.exports = {
-	category: 'dev',
+	category: 'admin',
 	data: data = new SlashCommandBuilder()
 		.setName("update")
 		.setDescription("Updates a user's roles")

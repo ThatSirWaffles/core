@@ -8,14 +8,14 @@ module.exports = {
 		.setName("flights")
 		.setDescription("View scheduled flights"),
 	async execute(interaction) {
-		await interaction.deferReply({ephemeral: true});
+		await interaction.deferReply();
 
 		const response = await fetch("https://staff.skyrden.com/api/v1/flights?status[eq]=scheduled");
 		const data = await response.json();
 		const flights = data.data;
 
 		if (flights.length == 0) { 
-			await interaction.followUp({embeds: new EmbedBuilder().setColor("002244").setDescription("No flights scheduled, check back later"), ephemeral: true});
+			await interaction.followUp({embeds: new EmbedBuilder().setColor("002244").setDescription("No flights scheduled, check back later")});
 		} else {
 			const flightpicker = new StringSelectMenuBuilder()
 				.setCustomId("flightpicker")
@@ -34,8 +34,7 @@ module.exports = {
 			const message = await interaction.followUp({
 				components: [
 					new ActionRowBuilder().addComponents(flightpicker)
-				],
-				ephemeral: true
+				]
 			});
 			
 			const collectorFilter = i => {

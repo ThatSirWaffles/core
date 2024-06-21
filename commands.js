@@ -1,11 +1,12 @@
 const { REST, Routes } = require('discord.js');
-const { clientid, mainguildid, staffguildid, token, supportguildid } = require('./config.json');
+const { clientid, mainguildid, staffguildid, token, supportguildid, devguildid } = require('./config.json');
 const fs = require('node:fs');
 const path = require('node:path');
 
 const commands = [];
 const staffcommands = [];
 const supportcommands = [];
+const devcommands = [];
 
 // Grab all the command folders from the commands directory you created earlier
 const foldersPath = path.join(__dirname, 'commands');
@@ -24,10 +25,13 @@ for (const folder of commandFolders) {
 				staffcommands.push(command.data.toJSON());
 			} else if (folder == "support") {
 				supportcommands.push(command.data.toJSON());
+			} else if (folder == "dev") {
+				devcommands.push(command.data.toJSON());
 			} else {
 				staffcommands.push(command.data.toJSON());
 				commands.push(command.data.toJSON());
 				supportcommands.push(command.data.toJSON());
+				devcommands.push(command.data.toJSON());
 			}
 		} else {
 			console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
@@ -41,9 +45,14 @@ const rest = new REST().setToken(token);
 // and deploy your commands!
 (async () => {
 	try {
-		console.log(`Started refreshing ${supportcommands.length} support commands, ${staffcommands.length} staff commands and ${commands.length} public commands`);
+		console.log(`Started refreshing ${devcommands.length} dev commands, ${supportcommands.length} support commands, ${staffcommands.length} staff commands and ${commands.length} public commands`);
 
 		// The put method is used to fully refresh all commands in the guild with the current set
+		const devdata = await rest.put(
+			Routes.applicationGuildCommands(clientid, devguildid),
+			{ body: devcommands },
+		);
+
 		const supportdata = await rest.put(
 			Routes.applicationGuildCommands(clientid, supportguildid),
 			{ body: supportcommands },
@@ -59,7 +68,7 @@ const rest = new REST().setToken(token);
 			{ body: commands },
 		);
 
-		console.log(`Successfully reloaded ${supportdata.length} support commands, ${staffdata.length} staff commands and ${data.length} public commands`);
+		console.log(`Successfully reloaded ${devdata.length} dev commands, ${supportdata.length} support commands, ${staffdata.length} staff commands and ${data.length} public commands`);
 	} catch (error) {
 		// And of course, make sure you catch and log any errors!
 		console.error(error);
