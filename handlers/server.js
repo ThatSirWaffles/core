@@ -3,12 +3,12 @@ const server = express();
 const bodyparser = require('body-parser');
 const noblox = require('noblox.js')
 
-const { flightformchannelid, staffhubkey, eventannouncements, flightlist, success, coretokens, thumbnails } = require("../config.json");
+const { flightformchannelid, staffhubkey, eventannouncements, flightlist, success, coretokens, thumbnails, cookie } = require("../config.json");
 const { EmbedBuilder, GuildScheduledEventPrivacyLevel, GuildScheduledEventEntityType, GuildScheduledEventManager, GuildScheduledEventStatus, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
 const { Ban, User, System } = require('./database');
 const { updateRoles } = require('../commands/public/verify');
 
-noblox.setCookie("_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someone-to-log-in-as-you-and-to-steal-your-ROBUX-and-items.|_57347365AC8516A9E32D487618FD2A1F0837309C0943470416BFFFF94EC1B2B2291EDAD8AF8B2AEC34B719AE188E203516F12A911BFC8D10076A01D7500B024B912BB7983E54073B3ECB1FBB675552D22C8EFAFB1772EAD1F87AD3DA0F84BB9256C92A426F4CAA9EF95F1A288D27AF38228F02C708CCFEE29E2562B4A48DFD77060ED9E876154735BB523CC20E4B33521BE07F4AEE07EDF88806FCA3129365043039CCC6A595145584CC85CE85DAB69D8C311A4748C1B95FB6790DAEE34D290AB10DDF84D1C05FA34614C3FF1F528D3D8EF746F947286E17041D79BD298477AAED326A11DA9638FE71C4169F87E59A69373EAFBD9CF4F1BFB8EEBCB661EF72412FC89C5C53758C18009146012E2AB33019D5742E0D2F7B07B4AC4431BE5BB7142B7A6CE523062FF53D6138194CDD940D2DEFD93AB473A10BEA43365601AB63B2EA412C6C34F585AEB31AC05A345524935FFABE822693ADA1D88133E6BDEE6C3A43B5B843E7664E0B286E98DEBEDEE54795BCC4BE").then(()=> {
+noblox.setCookie(cookie).then(()=> {
 	console.log('NOBLOX >>		READY');
 }).catch((error) => {
 	console.log('NOBLOX >>		ERROR', error);
